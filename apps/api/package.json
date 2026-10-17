@@ -1,0 +1,29 @@
+{
+  "name": "@almost-formal/api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/apps/api/src/server.js"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.3",
+    "argon2": "^0.44.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
+    "helmet": "^8.1.0",
+    "multer": "^2.0.2",
+    "sharp": "^0.34.4",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.9",
+    "@types/express": "^5.0.5",
+    "@types/multer": "^2.0.0",
+    "@types/supertest": "^6.0.3",
+    "supertest": "^7.1.4"
+  }
+}

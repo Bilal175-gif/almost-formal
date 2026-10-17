@@ -1,0 +1,27 @@
+{
+  "name": "@almost-formal/web",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --hostname 0.0.0.0 --port ${WEB_PORT:-3000}",
+    "build": "next build --webpack",
+    "start": "next start --hostname 0.0.0.0 --port ${WEB_PORT:-3000}"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@tanstack/react-query": "^5.90.5",
+    "framer-motion": "^12.23.24",
+    "lucide-react": "^0.548.0",
+    "next": "16.4.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-hook-form": "^7.65.0",
+    "zustand": "^5.0.8",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.16",
+    "tailwindcss": "^4.1.16",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2"
+  }
+}

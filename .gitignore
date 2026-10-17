@@ -1,0 +1,10 @@
+node_modules/
+.next/
+dist/
+.env
+*.db
+*.db-*
+*.tsbuildinfo
+test-results/
+playwright-report/
+apps/api/uploads/

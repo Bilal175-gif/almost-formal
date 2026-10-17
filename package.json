@@ -1,0 +1,32 @@
+{
+  "name": "almost-formal",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "node -r dotenv/config scripts/run-dev.mjs dev",
+    "build": "npm run build -w @almost-formal/api && npm run build -w @almost-formal/web",
+    "start": "node -r dotenv/config scripts/run-dev.mjs start",
+    "db:generate": "prisma generate --schema apps/api/prisma/schema.prisma",
+    "db:migrate": "node scripts/prepare-db.mjs && prisma migrate deploy --schema apps/api/prisma/schema.prisma",
+    "db:seed": "tsx apps/api/prisma/seed.ts",
+    "admin:create": "tsx apps/api/src/create-admin.ts",
+    "typecheck": "tsc --noEmit -p apps/api && tsc --noEmit -p apps/web",
+    "lint": "eslint apps packages tests",
+    "test": "node scripts/test-api.mjs",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^22.19.0",
+    "concurrently": "^9.2.1",
+    "eslint": "^9.39.0",
+    "eslint-config-next": "16.4.0",
+    "prettier": "3.9.6",
+    "prisma": "6.19.3",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}
