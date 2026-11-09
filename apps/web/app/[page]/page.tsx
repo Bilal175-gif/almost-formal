@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { InfoPage, Contact, FAQ, Tracking } from "@/components/content-pages";
 const slugs = [
   "our-story",
-  "why-thrift",
   "care-guide",
   "shipping-policy",
   "returns-policy",

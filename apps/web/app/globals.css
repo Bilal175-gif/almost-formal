@@ -1049,7 +1049,7 @@ textarea {
 }
 .bottom-collage {
   display: grid;
-  grid-template-columns: 1fr 205px 1.25fr;
+  grid-template-columns: 205px minmax(0, 1fr);
   gap: 24px;
   margin-top: 0;
   padding: 36px 48px;
@@ -1240,7 +1240,7 @@ textarea {
 }
 .collection {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 1fr;
   border-radius: 0;
   min-height: 900px;
 }
@@ -2477,7 +2477,7 @@ td select {
     font-size: 39px;
   }
   .bottom-collage {
-    grid-template-columns: 1fr 160px 1.1fr;
+    grid-template-columns: 160px minmax(0, 1fr);
     gap: 18px;
   }
   .not-overdressed {
@@ -2521,7 +2521,7 @@ td select {
     padding: 13px 17px;
   }
   .collection {
-    grid-template-columns: 195px 1fr;
+    grid-template-columns: 1fr;
   }
   .filter-sidebar {
     padding: 35px 20px;
@@ -2722,7 +2722,7 @@ td select {
     gap: 12px;
   }
   .collection {
-    grid-template-columns: 170px 1fr;
+    grid-template-columns: 1fr;
   }
   .filter-sidebar {
     padding: 32px 16px;

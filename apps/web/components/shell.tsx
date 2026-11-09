@@ -21,7 +21,6 @@ import { CartContents } from "./cart";
 const links = [
   ["Shop", "/shop"],
   ["Our story", "/our-story"],
-  ["Why thrift?", "/why-thrift"],
   ["Contact", "/contact"],
 ];
 export function Brand() {
@@ -117,7 +116,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <h3>The good stuff</h3>
             <Link href="/shop">Shop the drop</Link>
             <Link href="/our-story">Our story</Link>
-            <Link href="/why-thrift">Why thrift?</Link>
             <Link href="/care-guide">Care guide</Link>
           </div>
           <div>
@@ -182,7 +180,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
       >
         <Smile />
         <nav>
-          {[...links.slice(0, 3), ["Care guide", "/care-guide"], links[3]].map(
+          {[...links.slice(0, 2), ["Care guide", "/care-guide"], links[2]].map(
             ([label, href]) => (
               <Link onClick={() => s.setMenu(false)} key={href} href={href}>
                 <span>÷</span>
@@ -232,7 +230,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <input
             autoFocus
             aria-label="Search ties"
-            placeholder="Search ties, patterns, colors…"
+            placeholder="Search ties…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />

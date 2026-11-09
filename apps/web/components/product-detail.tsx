@@ -7,7 +7,6 @@ import {
   Ruler,
   ScanLine,
   Layers,
-  Palette,
   BadgeCheck,
   ArrowLeft,
   Plus,
@@ -130,12 +129,6 @@ export function ProductDetail({ slug }: { slug: string }) {
             <div>
               <Layers />
               <span>Material: {p.material || "Unverified"}</span>
-            </div>
-            <div>
-              <Palette />
-              <span>
-                Pattern: {p.pattern} · {p.color}
-              </span>
             </div>
             <div>
               <BadgeCheck />

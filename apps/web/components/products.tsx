@@ -8,7 +8,6 @@ import {
   Plus,
   ArrowRight,
   Search,
-  SlidersHorizontal,
   Eye,
   Minus,
 } from "lucide-react";
@@ -182,29 +181,8 @@ export function MobileDiscovery() {
     <div className="mobile-discovery">
       <Link className="search-input" href="/shop">
         <Search size={18} />
-        <span>Search ties, patterns, colors…</span>
+        <span>Search ties…</span>
       </Link>
-      <div className="category-bubbles">
-        {[
-          ["All", ""],
-          ["Striped", "Striped"],
-          ["Paisley", "Paisley"],
-          ["Solid", "Solid"],
-          ["Bow Ties", "Bow Ties"],
-        ].map(([label, value], i) => (
-          <Link
-            key={label}
-            href={`/shop?${i === 4 ? "category" : "pattern"}=${value}`}
-          >
-            <span className={`category-bubble bubble-${i}`}>
-              {i === 0 && <img src="/images/tie-5.webp" alt="" />}
-              {i === 2 && <img src="/images/tie-3.webp" alt="" />}
-              {i === 4 && <img src="/images/tie-6.webp" alt="" />}
-            </span>
-            <small>{label}</small>
-          </Link>
-        ))}
-      </div>
     </div>
   );
 }
@@ -213,16 +191,8 @@ export function Collection({ wishlist = false }: { wishlist?: boolean }) {
   const s = useStore();
   const [search, setSearch] = useState(params.get("search") || "");
   const [debounced, setDebounced] = useState(search);
-  const [filters, setFilters] = useState<Record<string, string[]>>({
-    category: params.get("category") ? [params.get("category")!] : [],
-    pattern: params.get("pattern") ? [params.get("pattern")!] : [],
-    color: [],
-    condition: [],
-  });
-  const [max, setMax] = useState(2500);
   const [sort, setSort] = useState("newest");
   const [page, setPage] = useState(1);
-  const [filterOpen, setFilterOpen] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => {
       setDebounced(search);
@@ -233,12 +203,8 @@ export function Collection({ wishlist = false }: { wishlist?: boolean }) {
   const query = new URLSearchParams({
     search: debounced,
     sort,
-    maxPrice: String(max * 100),
     page: String(page),
     limit: wishlist ? "100" : "12",
-  });
-  Object.entries(filters).forEach(([k, v]) => {
-    if (v.length) query.set(k, v.join(","));
   });
   const { data, isPending, error, refetch } = useQuery({
     queryKey: ["products", query.toString()],
@@ -247,127 +213,10 @@ export function Collection({ wishlist = false }: { wishlist?: boolean }) {
   const products = wishlist
     ? data?.products.filter((p) => s.wishlist.includes(p.id))
     : data?.products;
-  const toggle = (key: string, value: string) => {
-    setPage(1);
-    setFilters((prev) => ({
-      ...prev,
-      [key]: prev[key].includes(value)
-        ? prev[key].filter((x) => x !== value)
-        : [...prev[key], value],
-    }));
-  };
-  const clear = () => {
-    setFilters({ category: [], pattern: [], color: [], condition: [] });
-    setMax(2500);
-    setSearch("");
-    setPage(1);
-  };
-  const filterContent = (
-    <>
-      <div className="filter-title">
-        <h3>Filters</h3>
-        <button onClick={clear}>Clear all</button>
-      </div>
-      {[
-        [
-          "category",
-          "Category",
-          [
-            "Regular Ties",
-            "Bow Ties",
-            "Pocket Squares",
-            "Cufflinks",
-            "Tie Bars",
-          ],
-        ],
-        [
-          "pattern",
-          "Pattern",
-          ["Striped", "Paisley", "Geometric", "Floral", "Solid", "Novelty"],
-        ],
-      ].map(([key, label, values]) => (
-        <fieldset key={key as string}>
-          <legend>{label}</legend>
-          {(values as string[]).map((v) => (
-            <label key={v}>
-              <input
-                type="checkbox"
-                checked={filters[key as string].includes(v)}
-                onChange={() => toggle(key as string, v)}
-              />
-              {v}
-            </label>
-          ))}
-        </fieldset>
-      ))}
-      <fieldset>
-        <legend>Color</legend>
-        <div className="color-filters">
-          {[
-            ["Green", "#194b3a"],
-            ["Red", "#bb332a"],
-            ["Blue", "#075899"],
-            ["Yellow", "#f4b544"],
-            ["Brown", "#6a4b36"],
-            ["Multicolor", "linear-gradient(45deg,#d68993,#eec482,#194b3a)"],
-          ].map(([name, color]) => (
-            <button
-              key={name}
-              aria-label={`Filter ${name}`}
-              title={name}
-              aria-pressed={filters.color.includes(name)}
-              style={{ background: color }}
-              className={filters.color.includes(name) ? "selected" : ""}
-              onClick={() => toggle("color", name)}
-            />
-          ))}
-        </div>
-      </fieldset>
-      <fieldset>
-        <legend>Price Range</legend>
-        <p>Rs. 0 – Rs. {max.toLocaleString()}</p>
-        <input
-          aria-label="Maximum price"
-          type="range"
-          min={0}
-          max={2500}
-          step={50}
-          value={max}
-          onChange={(e) => {
-            setMax(Number(e.target.value));
-            setPage(1);
-          }}
-        />
-      </fieldset>
-      <fieldset>
-        <legend>Condition</legend>
-        {["Excellent", "Good", "Worn (character)"].map((v) => (
-          <label key={v}>
-            <input
-              type="checkbox"
-              checked={filters.condition.includes(v)}
-              onChange={() => toggle("condition", v)}
-            />
-            {v}
-          </label>
-        ))}
-      </fieldset>
-      <div className="filter-note">
-        <Smile />
-        <span>
-          EVERY TIE
-          <br />
-          HAS A PAST!
-        </span>
-        <Star />
-      </div>
-    </>
-  );
   return (
     <section
       className={`collection paper ${wishlist ? "wishlist-collection" : ""}`}
     >
-      {!wishlist && <aside className="filter-sidebar">{filterContent}</aside>}
       <div className="collection-main">
         <div className="collection-heading">
           <div>
@@ -399,13 +248,6 @@ export function Collection({ wishlist = false }: { wishlist?: boolean }) {
               </button>
             )}
           </label>
-          <button
-            className="filter-mobile button outline"
-            onClick={() => setFilterOpen(true)}
-          >
-            <SlidersHorizontal size={17} />
-            Filters
-          </button>
           <label className="sort-label">
             <span className="sr-only">Sort products</span>
             <select
@@ -422,17 +264,6 @@ export function Collection({ wishlist = false }: { wishlist?: boolean }) {
             </select>
           </label>
         </div>
-        {Object.values(filters).some((v) => v.length > 0) && (
-          <div className="active-filters">
-            {Object.entries(filters).flatMap(([k, values]) =>
-              values.map((v) => (
-                <button key={`${k}-${v}`} onClick={() => toggle(k, v)}>
-                  {v} ×
-                </button>
-              )),
-            )}
-          </div>
-        )}
         {isPending ? (
           <ProductSkeletons />
         ) : error ? (
@@ -480,31 +311,20 @@ export function Collection({ wishlist = false }: { wishlist?: boolean }) {
             <p>
               {wishlist
                 ? "Tap the heart on any piece to save it here."
-                : "Try a different pattern or clear your filters."}
+                : "Try another search to find your next tie."}
             </p>
             {wishlist ? (
               <Link className="button" href="/shop">
                 Explore the drop
               </Link>
             ) : (
-              <button className="button" onClick={clear}>
-                Clear filters
+              <button className="button" onClick={() => setSearch("")}>
+                Clear search
               </button>
             )}
           </div>
         )}
       </div>
-      <Modal
-        open={filterOpen}
-        onClose={() => setFilterOpen(false)}
-        label="product filters"
-        className="filters-drawer"
-      >
-        {filterContent}
-        <button className="button full" onClick={() => setFilterOpen(false)}>
-          Show finds <ArrowRight size={18} />
-        </button>
-      </Modal>
     </section>
   );
 }

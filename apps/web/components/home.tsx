@@ -2,9 +2,6 @@ import Link from "next/link";
 import {
   ArrowRight,
   Heart,
-  Leaf,
-  Recycle,
-  Gem,
   BadgeCheck,
   Shirt,
   Instagram,
@@ -147,34 +144,6 @@ export function StoryBlock() {
     </section>
   );
 }
-export function WhyThrift() {
-  return (
-    <section className="why-thrift paper">
-      <h2>Why thrift?</h2>
-      <div>
-        {[
-          [Leaf, "Sustainable", "Choices"],
-          [Star, "Unique", "Finds"],
-          [Gem, "Better", "Quality"],
-          [Heart, "More", "Character"],
-          [Recycle, "Less", "Waste"],
-        ].map(([Icon, a, b], i) => {
-          const C = Icon as React.ElementType;
-          return (
-            <Link href="/why-thrift" key={i}>
-              <C />
-              <span>
-                {a as string}
-                <br />
-                {b as string}
-              </span>
-            </Link>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
 export function SocialGallery() {
   return (
     <section className="social-gallery paper">
@@ -216,7 +185,6 @@ export default function HomePage() {
       <Featured />
       <StoryBlock />
       <div className="bottom-collage">
-        <WhyThrift />
         <div className="not-overdressed sticky-note">
           <span>
             NOT

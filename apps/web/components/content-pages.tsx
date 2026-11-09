@@ -39,30 +39,6 @@ export const infoPages: Record<
       ],
     ],
   },
-  "why-thrift": {
-    title: "Good style. A second life.",
-    eyebrow: "WHY THRIFT?",
-    intro:
-      "Some things get better with a little history. Thrifting is about finding what speaks to you and making the most of what already exists.",
-    sections: [
-      [
-        "Sustainable choices",
-        "Choosing a pre-loved piece keeps an existing item in use. Care for it, wear it often and pass it on when its next chapter comes.",
-      ],
-      [
-        "Unique finds",
-        "A vintage pattern or an unusual weave can make an everyday outfit feel like your own. Our one-of-one finds are selected individually.",
-      ],
-      [
-        "Better quality, more character",
-        "We look closely at construction and condition. Age alone doesn’t guarantee quality, so the details on every product page matter.",
-      ],
-      [
-        "Less waste, more wear",
-        "A small wardrobe of pieces you love is a good place to start. Repair when you can. Reuse what you have. Thrift. Wear. Repeat.",
-      ],
-    ],
-  },
   "care-guide": {
     title: "Keep the story going.",
     eyebrow: "THE CARE GUIDE",
