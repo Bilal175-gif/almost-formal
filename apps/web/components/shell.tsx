@@ -25,14 +25,9 @@ const links = [
   ["Contact", "/contact"],
 ];
 export function Brand() {
-  const { data } = useQuery({
-    queryKey: ["settings"],
-    queryFn: () => api<Settings>("/settings"),
-  });
   return (
     <Link href="/" className="brand" aria-label="Almost Formal home">
-      <span>{data?.name || "almost formal"}</span>
-      <small>VINTAGE THRIFTED FINDS</small>
+      <img src="/images/almost-formal-logo.webp" alt="Almost Formal" width={80} height={80} />
     </Link>
   );
 }
@@ -205,9 +200,9 @@ export function Shell({ children }: { children: React.ReactNode }) {
           PEOPLE <Heart />
         </div>
         <div className="menu-social">
-          <Link href="/contact">
-            Say hello <ArrowRight size={18} />
-          </Link>
+          <a href="https://www.instagram.com/almost.formal/" target="_blank" rel="noreferrer">
+            Instagram @almost.formal <ArrowRight size={18} />
+          </a>
         </div>
       </Modal>
       <Modal

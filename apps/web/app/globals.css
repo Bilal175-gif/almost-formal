@@ -289,9 +289,14 @@ textarea {
 }
 .brand {
   display: inline-flex;
-  flex-direction: column;
   align-items: center;
   line-height: 1;
+}
+.brand img {
+  display: block;
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
 }
 .brand > span {
   font-family: var(--serif);
@@ -763,6 +768,9 @@ textarea {
 }
 .product-card:hover {
   transform: translateY(-4px);
+}
+.product-card:active {
+  transform: scale(0.985);
 }
 .product-image {
   position: relative;
@@ -2871,6 +2879,10 @@ td select {
   .brand > span {
     font-size: 29px;
     letter-spacing: -1px;
+  }
+  .brand img {
+    width: 64px;
+    height: 64px;
   }
   .brand > small {
     font-size: 5.5px;

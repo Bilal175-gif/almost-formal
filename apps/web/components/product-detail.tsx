@@ -115,18 +115,18 @@ export function ProductDetail({ slug }: { slug: string }) {
             {p.era && <span>{p.era}</span>}
           </div>
           <div className="product-specs">
-            <div>
+            {p.length > 0 && <div>
               <Ruler />
               <span>
                 Length: {p.length} cm ({(p.length / 2.54).toFixed(0)} in)
               </span>
-            </div>
-            <div>
+            </div>}
+            {p.width > 0 && <div>
               <ScanLine />
               <span>
                 Width: {p.width} cm ({(p.width / 2.54).toFixed(1)} in)
               </span>
-            </div>
+            </div>}
             <div>
               <Layers />
               <span>Material: {p.material || "Unverified"}</span>

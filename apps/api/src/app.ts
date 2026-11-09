@@ -53,9 +53,15 @@ app.use((req, res, next) => {
 app.use("/api", (req, res, next) => {
   if (!["GET", "HEAD", "OPTIONS"].includes(req.method)) {
     const origin = req.get("origin");
+    const allowedOrigin = process.env.APP_ORIGIN || "http://localhost:3000";
+    const localDevelopmentOrigin =
+      process.env.NODE_ENV !== "production" &&
+      origin !== undefined &&
+      /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin);
     if (
       origin &&
-      origin !== (process.env.APP_ORIGIN || "http://localhost:3000")
+      origin !== allowedOrigin &&
+      !localDevelopmentOrigin
     )
       return res.status(403).json({ error: "Request origin is not allowed." });
     if (req.get("sec-fetch-site") === "cross-site")
@@ -134,7 +140,7 @@ app.get("/api/products", async (req, res) => {
         ? { price: "desc" }
         : q.sort === "name"
           ? { title: "asc" }
-          : { createdAt: "asc" };
+        : { createdAt: "desc" };
   const [products, total] = await Promise.all([
     db.product.findMany({
       where,

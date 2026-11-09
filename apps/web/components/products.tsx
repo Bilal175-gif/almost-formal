@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
 import {
   Heart,
   Plus,
@@ -37,18 +36,17 @@ export function ProductCard({
   const wished = s.wishlist.includes(p.id);
   return (
     <>
-      <motion.article
-        initial={false}
-        whileTap={{ scale: 0.985 }}
-        transition={{ duration: 0.25 }}
+      <article
         className={`product-card ${p.stock === 0 ? "sold" : ""}`}
       >
         <div className="product-image">
           <Link href={`/product/${p.slug}`}>
             <img
-              src={p.images[0]?.url}
+              src={p.images[0]?.url.startsWith("/images/instagram/")
+                ? p.images[0].url.replace("-0.webp", "-thumb.webp")
+                : p.images[0]?.url}
               alt={p.images[0]?.alt || p.title}
-              loading="lazy"
+              loading={index < 4 ? "eager" : "lazy"}
               width={384}
               height={512}
             />
@@ -88,7 +86,7 @@ export function ProductCard({
             </button>
           </div>
         </div>
-      </motion.article>
+      </article>
       <Modal
         open={quick}
         onClose={() => setQuick(false)}

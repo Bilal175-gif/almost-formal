@@ -1,13 +1,27 @@
 # Asset provenance
 
+The 28 files in `apps/web/public/images/instagram/` are two product photos each
+from 14 public posts on [@almost.formal](https://www.instagram.com/almost.formal/),
+published 16 October 2026. Their post shortcodes are in the filenames and in
+`apps/api/prisma/seed.ts`; the source post for each is
+`https://www.instagram.com/p/<shortcode>/`. Two posts explicitly say "Sold" and
+their corresponding listings have zero stock. Website prices are temporary
+owner-requested values. Physical condition, measurements, and stock of the
+other 12 posts have not been independently verified.
+
 All product imagery in this development catalogue is generated demo content. The built-in image generation tool was used, not an API/CLI fallback. The images do not document actual inventory.
 
 Saved assets:
 
-- `apps/web/public/images/products.png`: original 4 × 2 photographic asset sheet.
+- `docs/source-images/products.png`: original 4 × 2 photographic asset sheet.
 - `apps/web/public/images/tie-0.webp` through `tie-7.webp`: individual catalogue images derived from the sheet.
-- `apps/web/public/images/hero.png`: original generated hero.
+- `docs/source-images/hero.png`: original generated hero.
 - `apps/web/public/images/hero.webp`: optimized hero.
+- `docs/source-images/almost-formal-logo.png`: full-resolution logo source;
+  `apps/web/public/images/almost-formal-logo.webp`: small header asset.
+- `docs/source-images/story.png`: original story image source.
+- `apps/web/public/images/instagram/*-thumb.webp`: small catalogue cards;
+  detail pages retain the two full photos per product.
 - `apps/web/public/fonts/`: locally hosted Google Fonts (Barlow Condensed, Caveat, DM Sans, Libre Caslon Display), downloaded from Google Fonts. These families are distributed under the SIL Open Font License; license files accompany the font assets.
 - Stars, arrows, smiles and globe illustrations are original code-native SVGs in `components/doodles.tsx`.
 - Paper grain is a code-native SVG turbulence texture in CSS.

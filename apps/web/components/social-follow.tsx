@@ -6,16 +6,9 @@ export function SocialFollow() {
     queryKey: ["settings"],
     queryFn: () => api<Settings>("/settings"),
   });
-  const label = (
-    <>
-      Follow the drop <strong>@almostformal</strong>
-    </>
-  );
-  return data?.instagram ? (
-    <a href={data.instagram} target="_blank" rel="noreferrer">
-      {label}
+  return (
+    <a href={data?.instagram || "https://www.instagram.com/almost.formal/"} target="_blank" rel="noreferrer">
+      Follow the drop <strong>@almost.formal</strong>
     </a>
-  ) : (
-    <span>{label}</span>
   );
 }

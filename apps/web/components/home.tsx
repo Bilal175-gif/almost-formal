@@ -213,10 +213,6 @@ export default function HomePage() {
   return (
     <>
       <MobileDiscovery />
-      <div className="desktop-hero">
-        <Hero />
-        <Benefits />
-      </div>
       <Featured />
       <StoryBlock />
       <div className="bottom-collage">
