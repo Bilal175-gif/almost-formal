@@ -205,6 +205,11 @@ test("admin authentication, authorization, CSRF and product management", async (
     .set("Origin", "http://localhost:3000")
     .send({ email: "admin@example.test", password });
   assert.equal(login.status, 200);
+  const passwordOnlyLogin = await request(app)
+    .post("/api/auth/login")
+    .set("Origin", "http://localhost:3000")
+    .send({ password });
+  assert.equal(passwordOnlyLogin.status, 200);
   assert.match(String(login.headers["set-cookie"]), /HttpOnly/);
   assert.match(String(login.headers["set-cookie"]), /SameSite=Strict/);
   const me = await agent.get("/api/auth/me");

@@ -2,7 +2,7 @@ import { hash } from "argon2";
 import { z } from "zod";
 import { db } from "./db.js";
 const email = z.email().parse(process.env.ADMIN_EMAIL);
-const password = z.string().min(14).parse(process.env.ADMIN_PASSWORD);
+const password = z.string().min(8).parse(process.env.ADMIN_PASSWORD);
 const passwordHash = await hash(password);
 await db.user.upsert({
   where: { email },

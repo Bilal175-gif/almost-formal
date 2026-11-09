@@ -150,7 +150,7 @@ export function Admin() {
         <div className="admin-login">
           <span className="eyebrow">BEHIND THE GOOD FINDS.</span>
           <h1>Store sign in</h1>
-          <p>For the people giving old ties new stories.</p>
+          <p>Manage your Almost Formal store.</p>
           <form
             className="form-stack"
             onSubmit={async (e) => {
@@ -172,15 +172,6 @@ export function Admin() {
             }}
           >
             <label>
-              Email
-              <input
-                name="email"
-                type="email"
-                autoComplete="username"
-                required
-              />
-            </label>
-            <label>
               Password
               <input
                 name="password"
@@ -193,10 +184,6 @@ export function Admin() {
             <button className="button" disabled={busy}>
               {busy ? "Signing in…" : "Sign in securely"}
             </button>
-            <p className="tiny">
-              Administrator accounts are created by the store operator. There is
-              no default password.
-            </p>
           </form>
         </div>
       </section>
@@ -808,7 +795,7 @@ function ProductEditor({
   const [error, setError] = useState("");
   return (
     <>
-      <h2>{initial.title ? "Edit this find" : "A new story for the shop."}</h2>
+      <h2>{initial.title ? "Edit this find" : "Add a product"}</h2>
       <form
         className="form-stack"
         onSubmit={async (e) => {

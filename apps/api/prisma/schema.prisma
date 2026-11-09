@@ -193,7 +193,7 @@ model StoreSettings {
   instagram String @default("")
   shipping Int @default(25000)
   codEnabled Boolean @default(true)
-  announcement String @default("Old ties. New stories. A little less ordinary.")
+  announcement String @default("ONE-OF-ONE FINDS. FRESH DROPS.")
 }
 model AuditLog {
   id String @id @default(cuid())

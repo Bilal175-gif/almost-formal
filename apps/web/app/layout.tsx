@@ -4,7 +4,7 @@ import { Providers } from "@/components/providers";
 import { Shell } from "@/components/shell";
 export const metadata: Metadata = {
   title: {
-    default: "Almost Formal — Old Ties. New Stories.",
+    default: "Almost Formal — Vintage Ties",
     template: "%s | Almost Formal",
   },
   description:

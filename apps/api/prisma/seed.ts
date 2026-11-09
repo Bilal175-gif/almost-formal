@@ -128,7 +128,11 @@ for (const [code, title, description, rupees, pattern, color, sold] of instagram
 await db.storeSettings.upsert({
   where: { id: "store" },
   update: {},
-  create: { id: "store" },
+  create: { id: "store", announcement: "ONE-OF-ONE FINDS. FRESH DROPS." },
+});
+await db.storeSettings.updateMany({
+  where: { announcement: "Old ties. New stories. A little less ordinary." },
+  data: { announcement: "ONE-OF-ONE FINDS. FRESH DROPS." },
 });
 console.log("Seeded 8 demo ties and 14 Instagram listings. No admin credentials were created.");
 await db.$disconnect();

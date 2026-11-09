@@ -107,10 +107,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <footer className="footer paper">
           <div>
             <Brand />
-            <p>
-              Old ties. New stories.
-              <br />A little less ordinary.
-            </p>
           </div>
           <div>
             <h3>The good stuff</h3>
@@ -217,7 +213,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         label="product search"
         className="search-modal"
       >
-        <h2>Find your next story.</h2>
+        <h2>Find your next tie.</h2>
         <form
           className="search-input"
           onSubmit={(e) => {
@@ -254,7 +250,7 @@ function Newsletter() {
       <div>
         <span className="handwriting">A little heads-up?</span>
         <h2>Good finds don’t wait around.</h2>
-        <p>Get first dibs on new drops and stories worth wearing.</p>
+        <p>Get first dibs on new drops and fresh finds.</p>
       </div>
       <form
         onSubmit={async (e) => {

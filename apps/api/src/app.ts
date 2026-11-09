@@ -237,18 +237,22 @@ app.post(
   rateLimit({ windowMs: 15 * 60000, limit: 10 }),
   async (req, res) => {
     const { email, password } = z
-      .object({ email: z.email(), password: z.string().min(1).max(256) })
+      .object({ email: z.email().optional(), password: z.string().min(1).max(256) })
       .parse(req.body);
-    const user = await db.user.findUnique({
-      where: { email },
-      include: { admin: true },
-    });
-    if (
-      !user?.admin ||
-      !user.passwordHash ||
-      !(await verify(user.passwordHash, password))
-    )
-      throw new HttpError(401, "Email or password is incorrect.");
+    const candidates = email
+      ? [await db.user.findUnique({ where: { email }, include: { admin: true } })]
+      : await db.user.findMany({
+          where: { admin: { isNot: null } },
+          include: { admin: true },
+        });
+    let user: (typeof candidates)[number] | undefined;
+    for (const candidate of candidates) {
+      if (candidate?.admin && candidate.passwordHash && await verify(candidate.passwordHash, password)) {
+        user = candidate;
+        break;
+      }
+    }
+    if (!user?.admin) throw new HttpError(401, "Password is incorrect.");
     const token = randomBytes(32).toString("hex");
     await db.session.create({
       data: {

@@ -21,7 +21,7 @@ For the defaults, no environment file is needed at runtime: the API defaults to 
 
 ## Administrator access
 
-There are no hardcoded or default credentials. Create an account with a password of at least 14 characters:
+The store sign-in page asks only for the administrator password. Create or reset an account with a password of at least 8 characters:
 
 ```bash
 read -r -p 'Admin email: ' ADMIN_EMAIL
