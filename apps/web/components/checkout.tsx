@@ -4,13 +4,14 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowRight, ArrowLeft, Check, Truck, ShoppingBag } from "lucide-react";
+import { ArrowRight, ArrowLeft, Check, ShoppingBag } from "lucide-react";
 import {
   addressSchema,
   type AddressInput,
   money,
 } from "../../../packages/shared";
 import { api, type Settings } from "@/lib/api";
+import { productImageUrl } from "@/lib/cloudinary-image";
 import { useStore } from "@/lib/store";
 import { ErrorBox } from "./ui";
 import { Smile } from "./doodles";
@@ -192,7 +193,7 @@ export function Checkout() {
       <div className="checkout-layout">
         <div>
           <nav className="checkout-steps" aria-label="Checkout progress">
-            {["Details", "Delivery", "Payment", "Review"].map((label, i) => (
+            {["Details", "Review"].map((label, i) => (
               <button
                 type="button"
                 className={`checkout-step ${step >= i ? "active" : ""}`}
@@ -334,83 +335,11 @@ export function Checkout() {
                 Save this address on this device
               </label>
               <button className="button full" type="submit">
-                Continue to Delivery <ArrowRight size={18} />
+                Review order <ArrowRight size={18} />
               </button>
             </form>
           )}
           {step === 1 && (
-            <div className="form-stack">
-              <h3>A little journey to your door.</h3>
-              <label className="shipping-choice">
-                <input type="radio" checked readOnly name="delivery" />
-                <div>
-                  <strong>
-                    Standard delivery <Truck size={18} />
-                  </strong>
-                  <p>Carefully packed to keep your vintage find safe.</p>
-                  <p>
-                    Dispatch and delivery timing will be confirmed by the store.
-                  </p>
-                </div>
-                <strong>
-                  {settings ? money(settings.shipping) : "Loading…"}
-                </strong>
-              </label>
-              <p className="subtle">
-                Delivering to {address?.name}, {address?.line1}, {address?.city}
-                .
-              </p>
-              <Link className="text-link" href="/shipping-policy">
-                Read our draft shipping policy
-              </Link>
-              <div className="step-actions">
-                <button className="text-link" onClick={() => setStep(0)}>
-                  <ArrowLeft size={16} />
-                  Back
-                </button>
-                <button
-                  className="button"
-                  disabled={!settings}
-                  onClick={() => setStep(2)}
-                >
-                  Continue to Payment <ArrowRight size={17} />
-                </button>
-              </div>
-            </div>
-          )}
-          {step === 2 && (
-            <div className="form-stack">
-              <h3>Payment, kept simple.</h3>
-              {settings?.codEnabled ? (
-                <label className="shipping-choice">
-                  <input type="radio" checked readOnly name="payment" />
-                  <div>
-                    <strong>Cash on Delivery</strong>
-                    <p>
-                      Pay {money(subtotal + settings.shipping)} when your order
-                      arrives. No online payment will be taken.
-                    </p>
-                  </div>
-                </label>
-              ) : (
-                <ErrorBox message="Cash on delivery is currently unavailable. Please contact the store." />
-              )}
-              <div className="step-actions">
-                <button className="text-link" onClick={() => setStep(1)}>
-                  <ArrowLeft size={16} />
-                  Back
-                </button>
-                <button
-                  className="button"
-                  disabled={!settings?.codEnabled}
-                  onClick={() => setStep(3)}
-                >
-                  Review your order <ArrowRight size={17} />
-                </button>
-              </div>
-            </div>
-          )}
-          {step === 3 && (
             <div className="form-stack">
               <h3>Everything look right?</h3>
               <p>
@@ -428,9 +357,23 @@ export function Checkout() {
                 Edit delivery details
               </button>
               <p className="subtle">
-                Cash on delivery ·{" "}
-                {settings ? money(subtotal + settings.shipping) : ""}
+                Standard delivery ·{" "}
+                {settings ? money(settings.shipping) : "Loading…"}
+                <br />
+                Dispatch timing will be confirmed by the store. See our{" "}
+                <Link className="text-link" href="/shipping-policy">
+                  shipping policy
+                </Link>
+                .
               </p>
+              <p className="subtle">
+                Cash on delivery ·{" "}
+                {settings ? money(subtotal + settings.shipping) : ""}. No online
+                payment will be taken.
+              </p>
+              {settings && !settings.codEnabled && (
+                <ErrorBox message="Cash on delivery is currently unavailable. Please contact the store." />
+              )}
               {s.note && <p className="subtle">Your note: {s.note}</p>}
               <p className="tiny">
                 By placing this order you acknowledge the{" "}
@@ -447,7 +390,7 @@ export function Checkout() {
                 <button
                   className="text-link"
                   disabled={busy}
-                  onClick={() => setStep(2)}
+                  onClick={() => setStep(0)}
                 >
                   <ArrowLeft size={16} />
                   Back
@@ -471,7 +414,7 @@ export function Checkout() {
           {s.items.map(({ product: p, quantity }) => (
             <div className="cart-item" key={p.id}>
               <Link href={`/product/${p.slug}`}>
-                <img src={p.images[0]?.url} alt={p.title} />
+                <img src={productImageUrl(p.images[0]?.url, 160)} alt={p.title} />
               </Link>
               <div>
                 <Link href={`/product/${p.slug}`}>{p.title}</Link>

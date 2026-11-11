@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
   Heart,
@@ -13,6 +14,7 @@ import {
   Package,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { productImageUrl, productImageSrcSet } from "@/lib/cloudinary-image";
 import { useStore } from "@/lib/store";
 import { type Product, money } from "../../../packages/shared";
 import { ErrorBox } from "./ui";
@@ -20,6 +22,7 @@ import { ArrowDoodle } from "./doodles";
 import { ProductCard, ProductSkeletons } from "./products";
 export function ProductDetail({ slug }: { slug: string }) {
   const s = useStore();
+  const router = useRouter();
   const [selected, setSelected] = useState(0);
   const {
     data: p,
@@ -73,13 +76,15 @@ export function ProductDetail({ slug }: { slug: string }) {
                 aria-label={`View photo ${i + 1}`}
                 aria-pressed={selected === i}
               >
-                <img src={img.url} alt={img.alt} />
+                <img src={productImageUrl(img.url, 160)} alt={img.alt} />
               </button>
             ))}
           </div>
           <div className="product-main-image">
             <img
-              src={p.images[selected]?.url || p.images[0]?.url}
+              src={productImageUrl(p.images[selected]?.url || p.images[0]?.url, 1200)}
+              srcSet={productImageSrcSet(p.images[selected]?.url || p.images[0]?.url, [480, 800, 1200, 1600])}
+              sizes="(max-width: 850px) 90vw, 50vw"
               alt={p.images[selected]?.alt || p.title}
               width={384}
               height={512}
@@ -94,14 +99,16 @@ export function ProductDetail({ slug }: { slug: string }) {
                 fill={s.wishlist.includes(p.id) ? "currentColor" : "none"}
               />
             </button>
-            <div className="one-note">
-              ONE
-              <br />
-              OF
-              <br />
-              ONE
-              <ArrowDoodle />
-            </div>
+            {p.stock === 1 && (
+              <div className="one-note">
+                ONE
+                <br />
+                OF
+                <br />
+                ONE
+                <ArrowDoodle />
+              </div>
+            )}
           </div>
         </div>
         <div className="product-detail-copy">
@@ -114,18 +121,22 @@ export function ProductDetail({ slug }: { slug: string }) {
             {p.era && <span>{p.era}</span>}
           </div>
           <div className="product-specs">
-            {p.length > 0 && <div>
-              <Ruler />
-              <span>
-                Length: {p.length} cm ({(p.length / 2.54).toFixed(0)} in)
-              </span>
-            </div>}
-            {p.width > 0 && <div>
-              <ScanLine />
-              <span>
-                Width: {p.width} cm ({(p.width / 2.54).toFixed(1)} in)
-              </span>
-            </div>}
+            {p.length > 0 && (
+              <div>
+                <Ruler />
+                <span>
+                  Length: {p.length} cm ({(p.length / 2.54).toFixed(0)} in)
+                </span>
+              </div>
+            )}
+            {p.width > 0 && (
+              <div>
+                <ScanLine />
+                <span>
+                  Width: {p.width} cm ({(p.width / 2.54).toFixed(1)} in)
+                </span>
+              </div>
+            )}
             <div>
               <Layers />
               <span>Material: {p.material || "Unverified"}</span>
@@ -138,7 +149,9 @@ export function ProductDetail({ slug }: { slug: string }) {
               <Package />
               <span>
                 {p.stock > 0
-                  ? `${p.stock} available · One of a kind`
+                  ? p.stock === 1
+                    ? "Only one available"
+                    : `${p.stock} available`
                   : "Sold out — found a new home"}
               </span>
             </div>
@@ -160,7 +173,21 @@ export function ProductDetail({ slug }: { slug: string }) {
               {p.stock ? "Add to Bag" : "Found a new home"}
               {p.stock > 0 && <Plus size={20} />}
             </button>
-            <p className="subtle">One-of-one. Once it’s gone, it’s gone.</p>
+            <button
+              className="button outline full"
+              disabled={p.stock < 1}
+              onClick={() => {
+                s.add(p);
+                s.setCart(false);
+                router.push("/checkout");
+              }}
+            >
+              Buy now · Cash on delivery
+            </button>
+            <p className="subtle">
+              Delivery charge and full total are shown before you place the
+              order.
+            </p>
           </div>
           <div className="product-details-extra">
             <details>

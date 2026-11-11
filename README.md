@@ -15,9 +15,37 @@ npm run db:seed
 npm run dev
 ```
 
-The dev runner automatically picks the next free web port when 3000 is already in use, so `npm run dev` keeps working without manual cleanup. If you want to force a specific port, set `WEB_PORT=3100` and it will also update `APP_ORIGIN` for the API. Open the chosen URL shown in the terminal, usually **http://localhost:3000** or the next available port. The API listens on `127.0.0.1:4000`; Next.js proxies `/api` and `/uploads`. The seeded catalogue is explicitly demo content. Seeding is idempotent and does not reset existing stock.
+To run the existing backend and frontend folders in separate terminals, run these from the project root after setup:
+
+```bash
+# Terminal 1 — backend (apps/api)
+npm run dev:api
+```
+
+```bash
+# Terminal 2 — frontend (apps/web)
+npm run dev:web
+```
+
+Start the two commands in either order. Both use the fixed API port in the root `.env` (default **4100**), so the frontend can start before the backend. If that port is occupied by another service, the command stops with a clear error; set `PORT` to a free port in `.env` and restart both terminals. Open the URL printed by the frontend, usually **http://localhost:3000**. If that web port is occupied, `dev:web` selects the next free port automatically. Stop either service with Ctrl+C in its terminal. Running them separately makes logs and restarts independent, but does not by itself make requests faster.
+
+The combined `npm run dev` command automatically picks the next free web and API ports, starting at 3000 and 4100. If you want to start its search from a different port, set `WEB_PORT` or `PORT`. The runner updates `APP_ORIGIN` and `API_URL` to match. Next.js proxies `/api` and `/uploads`. The seeded catalogue is explicitly demo content. Seeding is idempotent and does not reset existing stock.
 
 For the defaults, no environment file is needed at runtime: the API defaults to `file:./dev.db` relative to its Prisma schema. Prisma CLI commands require `DATABASE_URL`, supplied by `.env`. If using a custom database, prefer an absolute `file:/absolute/path/store.db` URL and export it to both processes. Root `npm run dev` and `npm start` load the root `.env` through the dotenv preload configured in the scripts.
+
+## Email (SMTP)
+
+The API sends customer order confirmations, shipped/delivered/cancelled updates, new-order alerts, and contact messages through SMTP. Email delivery is disabled until `SMTP_PASSWORD` is set; checkout still saves orders if email is unavailable. Failed sends are logged in the API terminal.
+
+For the test Gmail account, `.env` already contains `smtp.gmail.com`, port `587`, and the sender/notification address. Turn on Google 2-Step Verification, create an **App Password**, and put it in `SMTP_PASSWORD` in the local `.env` file. Use the App Password, not the Google account password. Restart `npm run dev:api`, then verify with:
+
+```bash
+npm run smtp:test
+```
+
+This sends one test message to `STORE_NOTIFICATION_EMAIL`. Do not commit `.env` or paste the App Password into chat. For production, use a domain mailbox or transactional email provider, set `SMTP_FROM` to its verified sender, and test delivery again.
+
+The competitor comparison and remaining launch tasks are in [the e-commerce review](docs/ecommerce-review.md).
 
 ## Administrator access
 
@@ -60,6 +88,8 @@ API tests use a temporary isolated SQLite database and remove it afterward. Brow
 Playwright defaults to the installed Chrome executable at `/opt/google/chrome/chrome` in this workspace. On another machine set `CHROME_PATH` to your installed Chrome/Chromium path. If no system browser is available, install Playwright Chromium with `npx playwright install chromium`, remove the configured executablePath, and use its bundled browser.
 
 ## Build and deploy
+
+For the optional Cloudflare Workers frontend and Cloudinary image setup, see [Cloudflare + Cloudinary setup](docs/CLOUDFLARE_CLOUDINARY_SETUP.md). The Express/SQLite API remains a Node service on persistent storage.
 
 ```bash
 npm run db:generate

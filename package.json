@@ -7,6 +7,9 @@
   ],
   "scripts": {
     "dev": "node -r dotenv/config scripts/run-dev.mjs dev",
+    "dev:api": "node -r dotenv/config scripts/run-dev.mjs dev:api",
+    "dev:web": "node -r dotenv/config scripts/run-dev.mjs dev:web",
+    "smtp:test": "node -r dotenv/config --import tsx apps/api/src/test-mail.ts",
     "build": "npm run build -w @almost-formal/api && npm run build -w @almost-formal/web",
     "start": "node -r dotenv/config scripts/run-dev.mjs start",
     "db:generate": "prisma generate --schema apps/api/prisma/schema.prisma",

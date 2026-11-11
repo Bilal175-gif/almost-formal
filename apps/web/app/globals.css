@@ -181,27 +181,6 @@ textarea {
   margin: 0;
   padding: 0;
 }
-.announcement {
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-  background: #d8cbb0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%236b523b' opacity='.14' filter='url(%23n)' d='M0 0h180v180H0z'/%3E%3C/svg%3E");
-  border-bottom: 1px solid #c8ba9d;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 48px;
-  font-size: 10px;
-  letter-spacing: 1.5px;
-}
-.announcement > span:last-child {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  letter-spacing: 0.3px;
-  font-size: 11px;
-}
 .header {
   height: 108px;
   position: relative;
@@ -1379,6 +1358,38 @@ textarea {
   padding: 11px;
   min-width: 165px;
 }
+.collection-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+  margin: -9px 0 24px;
+}
+.collection-filters label:not(.stock-filter) {
+  display: grid;
+  gap: 5px;
+  min-width: 135px;
+  flex: 1 1 135px;
+  font-size: 11px;
+}
+.collection-filters select {
+  width: 100%;
+  min-width: 0;
+  padding: 10px;
+  font-size: 12px;
+}
+.collection-filters .stock-filter {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 37px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.collection-filters .text-link {
+  min-height: 37px;
+  font-size: 12px;
+}
 .collection .product-grid {
   gap: 22px 20px;
 }
@@ -1883,6 +1894,9 @@ textarea {
 .product-actions .button {
   padding: 17px;
   font-size: 17px;
+}
+.product-actions .button + .button {
+  margin-top: 10px;
 }
 .product-actions .subtle {
   text-align: center;
@@ -2573,9 +2587,6 @@ td select {
   .site-wrap {
     padding: 0;
   }
-  .announcement {
-    padding: 8px 20px;
-  }
   .header {
     height: 88px;
     padding: 0 25px;
@@ -2851,9 +2862,6 @@ td select {
   }
   .site-wrap {
     padding: 0;
-  }
-  .announcement {
-    display: none;
   }
   .header {
     height: 83px;

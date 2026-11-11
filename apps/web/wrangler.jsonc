@@ -1,0 +1,28 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "almost-formal-web",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    { "binding": "WORKER_SELF_REFERENCE", "service": "almost-formal-web" }
+  ],
+  "env": {
+    "staging": {
+      "name": "almost-formal-web-staging",
+      "services": [
+        { "binding": "WORKER_SELF_REFERENCE", "service": "almost-formal-web-staging" }
+      ]
+    },
+    "production": {
+      "name": "almost-formal-web",
+      "services": [
+        { "binding": "WORKER_SELF_REFERENCE", "service": "almost-formal-web" }
+      ]
+    }
+  }
+}

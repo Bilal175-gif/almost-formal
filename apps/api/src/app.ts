@@ -9,7 +9,7 @@ import cookieParser from "cookie-parser";
 import { verify } from "argon2";
 import { randomBytes, createHash } from "node:crypto";
 import path from "node:path";
-import { mkdir } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import multer from "multer";
 import sharp from "sharp";
 import { z } from "zod";
@@ -21,6 +21,17 @@ import {
   orderInclude,
   updateOrderStatus,
 } from "./orders.js";
+import {
+  sendContactNotification,
+  sendOrderPlaced,
+  sendOrderStatus,
+} from "./mail.js";
+import {
+  cloudinaryConfigured,
+  destroyCloudinaryImage,
+  isCloudinaryProductUrl,
+  uploadProductImage,
+} from "./cloudinary.js";
 export const app = express();
 app.disable("x-powered-by");
 app.use(helmet());
@@ -51,20 +62,31 @@ app.use((req, res, next) => {
   next();
 });
 app.use("/api", (req, res, next) => {
+  res.set("Cache-Control", "private, no-store");
+  const origin = req.get("origin");
+  const allowedOrigins = new Set([
+    process.env.APP_ORIGIN || "http://localhost:3000",
+    ...(process.env.ALLOWED_ORIGINS || "").split(",").map((value) => value.trim()),
+  ]);
+  const localDevelopmentOrigin =
+    process.env.NODE_ENV !== "production" &&
+    origin !== undefined &&
+    /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin);
+  const allowed = !!origin && (allowedOrigins.has(origin) || localDevelopmentOrigin);
+  if (allowed && origin) {
+    res.vary("Origin");
+    res.set({
+      "Access-Control-Allow-Origin": origin,
+      "Access-Control-Allow-Credentials": "true",
+      "Access-Control-Allow-Methods": "GET, HEAD, POST, PATCH, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, X-CSRF-Token, X-Order-Token",
+    });
+  }
+  if (req.method === "OPTIONS") return res.sendStatus(allowed ? 204 : 403);
   if (!["GET", "HEAD", "OPTIONS"].includes(req.method)) {
-    const origin = req.get("origin");
-    const allowedOrigin = process.env.APP_ORIGIN || "http://localhost:3000";
-    const localDevelopmentOrigin =
-      process.env.NODE_ENV !== "production" &&
-      origin !== undefined &&
-      /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin);
-    if (
-      origin &&
-      origin !== allowedOrigin &&
-      !localDevelopmentOrigin
-    )
+    if (origin && !allowed)
       return res.status(403).json({ error: "Request origin is not allowed." });
-    if (req.get("sec-fetch-site") === "cross-site")
+    if (req.get("sec-fetch-site") === "cross-site" && !allowed)
       return res
         .status(403)
         .json({ error: "Cross-site requests are not allowed." });
@@ -97,7 +119,9 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 const images = { images: { orderBy: { position: "asc" as const } } };
-app.get("/api/health", (_req, res) => res.json({ ok: true }));
+app.get("/api/health", (_req, res) =>
+  res.json({ ok: true, service: "almost-formal-api" }),
+);
 app.get("/api/products", async (req, res) => {
   const q = z
     .object({
@@ -113,6 +137,7 @@ app.get("/api/products", async (req, res) => {
       page: z.coerce.number().int().min(1).default(1),
       limit: z.coerce.number().int().min(1).max(100).default(12),
       featured: z.enum(["true", "false"]).optional(),
+      inStock: z.enum(["true", "false"]).optional(),
     })
     .parse(req.query);
   const where: Prisma.ProductWhereInput = {
@@ -132,6 +157,7 @@ app.get("/api/products", async (req, res) => {
     ...(q.condition ? { condition: { in: q.condition.split(",") } } : {}),
     ...(q.maxPrice !== undefined ? { price: { lte: q.maxPrice } } : {}),
     ...(q.featured ? { featured: q.featured === "true" } : {}),
+    ...(q.inStock === "true" ? { stock: { gt: 0 } } : {}),
   };
   const orderBy: Prisma.ProductOrderByWithRelationInput =
     q.sort === "price-asc"
@@ -140,7 +166,7 @@ app.get("/api/products", async (req, res) => {
         ? { price: "desc" }
         : q.sort === "name"
           ? { title: "asc" }
-        : { createdAt: "desc" };
+          : { createdAt: "desc" };
   const [products, total] = await Promise.all([
     db.product.findMany({
       where,
@@ -156,6 +182,32 @@ app.get("/api/products", async (req, res) => {
     total,
     page: q.page,
     pages: Math.ceil(total / q.limit),
+  });
+});
+app.get("/api/product-filters", async (_req, res) => {
+  const products = await db.product.findMany({
+    where: { archived: false },
+    select: {
+      category: true,
+      pattern: true,
+      color: true,
+      condition: true,
+      price: true,
+    },
+  });
+  const values = (key: "category" | "pattern" | "color" | "condition") =>
+    [
+      ...new Set(products.map((product) => product[key]).filter(Boolean)),
+    ].sort();
+  res.json({
+    categories: values("category"),
+    patterns: values("pattern"),
+    colors: values("color"),
+    conditions: values("condition"),
+    maxPrice: products.reduce(
+      (max, product) => Math.max(max, product.price),
+      0,
+    ),
   });
 });
 app.get("/api/products/:slug", async (req, res) => {
@@ -182,7 +234,14 @@ app.get("/api/settings", async (_req, res) =>
 app.post(
   "/api/orders",
   rateLimit({ windowMs: 60000, limit: 15 }),
-  async (req, res) => res.status(201).json(await createOrder(req.body)),
+  async (req, res) =>
+    res.status(201).json(
+      await createOrder(req.body, (order) => {
+        void sendOrderPlaced(order).catch((error) =>
+          console.error("SMTP order email failed:", error),
+        );
+      }),
+    ),
 );
 app.get("/api/orders/:id", async (req, res) => {
   const token = z.string().length(64).parse(req.get("x-order-token"));
@@ -225,11 +284,12 @@ app.post(
       })
       .parse(req.body);
     await db.contactMessage.create({ data });
-    res
-      .status(201)
-      .json({
-        message: "Your message has been saved for the Almost Formal team.",
-      });
+    void sendContactNotification(data).catch((error) =>
+      console.error("SMTP contact email failed:", error),
+    );
+    res.status(201).json({
+      message: "Your message has been saved for the Almost Formal team.",
+    });
   },
 );
 app.post(
@@ -237,17 +297,29 @@ app.post(
   rateLimit({ windowMs: 15 * 60000, limit: 10 }),
   async (req, res) => {
     const { email, password } = z
-      .object({ email: z.email().optional(), password: z.string().min(1).max(256) })
+      .object({
+        email: z.email().optional(),
+        password: z.string().min(1).max(256),
+      })
       .parse(req.body);
     const candidates = email
-      ? [await db.user.findUnique({ where: { email }, include: { admin: true } })]
+      ? [
+          await db.user.findUnique({
+            where: { email },
+            include: { admin: true },
+          }),
+        ]
       : await db.user.findMany({
           where: { admin: { isNot: null } },
           include: { admin: true },
         });
     let user: (typeof candidates)[number] | undefined;
     for (const candidate of candidates) {
-      if (candidate?.admin && candidate.passwordHash && await verify(candidate.passwordHash, password)) {
+      if (
+        candidate?.admin &&
+        candidate.passwordHash &&
+        (await verify(candidate.passwordHash, password))
+      ) {
         user = candidate;
         break;
       }
@@ -276,15 +348,13 @@ app.post(
   },
 );
 app.get("/api/auth/me", protect, (req, res) =>
-  res
-    .set("Cache-Control", "no-store")
-    .json({
-      name: res.locals.admin.user.name,
-      email: res.locals.admin.user.email,
-      csrfToken: createHash("sha256")
-        .update(`csrf:${req.cookies.af_session}`)
-        .digest("hex"),
-    }),
+  res.set("Cache-Control", "no-store").json({
+    name: res.locals.admin.user.name,
+    email: res.locals.admin.user.email,
+    csrfToken: createHash("sha256")
+      .update(`csrf:${req.cookies.af_session}`)
+      .digest("hex"),
+  }),
 );
 app.post("/api/auth/logout", protect, async (req, res) => {
   await db.session.deleteMany({
@@ -354,11 +424,25 @@ const productSchema = z.object({
   featured: z.boolean(),
   archived: z.boolean().optional(),
   imageUrls: z
-    .array(z.string().regex(/^\/(images|uploads)\/[a-zA-Z0-9._-]+$/))
+    .array(z.string().refine(
+      (url) => /^\/(images|uploads)\/[a-zA-Z0-9._-]+$/.test(url) || isCloudinaryProductUrl(url),
+      "Use an image uploaded to this store.",
+    ))
     .min(1)
     .max(8)
     .optional(),
 });
+async function deleteUnusedCloudinaryImages(urls: string[]) {
+  for (const url of new Set(urls)) {
+    if (!isCloudinaryProductUrl(url)) continue;
+    const [productReferences, orderReferences] = await Promise.all([
+      db.productImage.count({ where: { url } }),
+      db.orderItem.count({ where: { image: url } }),
+    ]);
+    if (productReferences === 0 && orderReferences === 0)
+      await destroyCloudinaryImage(url);
+  }
+}
 app.post("/api/admin/products", async (req, res) => {
   const { imageUrls, ...data } = productSchema.parse(req.body);
   if (!imageUrls) throw new HttpError(400, "Add at least one product image.");
@@ -398,6 +482,9 @@ app.post("/api/admin/products", async (req, res) => {
 app.patch("/api/admin/products/:id", async (req, res) => {
   const { imageUrls, ...data } = productSchema.partial().parse(req.body);
   const id = String(req.params.id);
+  const previousImages = imageUrls
+    ? await db.productImage.findMany({ where: { productId: id }, select: { url: true } })
+    : [];
   const p = await db.$transaction(async (tx) => {
     const before = await tx.product.findUniqueOrThrow({ where: { id } });
     if (data.stock !== undefined && data.stock !== before.stock)
@@ -446,9 +533,14 @@ app.patch("/api/admin/products/:id", async (req, res) => {
     });
   });
   res.json(p);
+  if (imageUrls) {
+    void deleteUnusedCloudinaryImages(previousImages.map((image) => image.url).filter((url) => !imageUrls.includes(url)))
+      .catch((error) => console.error("Cloudinary image cleanup failed:", error));
+  }
 });
 app.delete("/api/admin/products/:id", async (req, res) => {
   const id = String(req.params.id);
+  const previousImages = await db.productImage.findMany({ where: { productId: id }, select: { url: true } });
   await db.$transaction(async (tx) => {
     const count = await tx.orderItem.count({ where: { productId: id } });
     if (count)
@@ -467,6 +559,8 @@ app.delete("/api/admin/products/:id", async (req, res) => {
     });
   });
   res.json({ ok: true });
+  void deleteUnusedCloudinaryImages(previousImages.map((image) => image.url))
+    .catch((error) => console.error("Cloudinary image cleanup failed:", error));
 });
 app.post("/api/admin/categories", async (req, res) => {
   const data = z
@@ -500,15 +594,31 @@ app.patch("/api/admin/orders/:id/status", async (req, res) => {
       carrier: z.string().max(100).optional(),
     })
     .parse(req.body);
-  res.json(
-    await updateOrderStatus(
-      String(req.params.id),
-      data.status,
-      res.locals.admin.id,
-      data.trackingNumber,
-      data.carrier,
-    ),
+  const orderId = String(req.params.id);
+  const before = await db.order.findUnique({
+    where: { id: orderId },
+    select: { status: true },
+  });
+  const order = await updateOrderStatus(
+    orderId,
+    data.status,
+    res.locals.admin.id,
+    data.trackingNumber,
+    data.carrier,
   );
+  if (
+    before?.status !== order.status &&
+    ["shipped", "delivered", "cancelled"].includes(order.status)
+  ) {
+    const details = await db.order.findUniqueOrThrow({
+      where: { id: orderId },
+      include: orderInclude,
+    });
+    void sendOrderStatus(details).catch((error) =>
+      console.error("SMTP status email failed:", error),
+    );
+  }
+  res.json(order);
 });
 app.get("/api/admin/inventory", async (_req, res) =>
   res.json(
@@ -583,13 +693,28 @@ app.use(
 app.post("/api/admin/uploads", upload.single("image"), async (req, res) => {
   if (!req.file)
     throw new HttpError(400, "Choose a JPEG, PNG or WebP image under 5 MB.");
+  let optimized: Buffer;
+  try {
+    const metadata = await sharp(req.file.buffer, { limitInputPixels: 25000000 }).metadata();
+    if (!metadata.format || !["jpeg", "png", "webp"].includes(metadata.format))
+      throw new Error("Unsupported image format");
+    optimized = await sharp(req.file.buffer, { limitInputPixels: 25000000 })
+      .rotate()
+      .resize(1600, 2000, { fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 88 })
+      .toBuffer();
+  } catch {
+    throw new HttpError(400, "Choose a valid JPEG, PNG or WebP image under 5 MB and 25 megapixels.");
+  }
+  if (cloudinaryConfigured()) {
+    const url = await uploadProductImage(optimized);
+    return res.status(201).json({ url });
+  }
+  if (process.env.CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_API_KEY || process.env.CLOUDINARY_API_SECRET)
+    throw new HttpError(503, "Cloudinary credentials are incomplete.");
   await mkdir(uploads, { recursive: true });
   const filename = `${randomBytes(16).toString("hex")}.webp`;
-  await sharp(req.file.buffer, { limitInputPixels: 25000000 })
-    .rotate()
-    .resize(1600, 2000, { fit: "inside", withoutEnlargement: true })
-    .webp({ quality: 88 })
-    .toFile(path.join(uploads, filename));
+  await writeFile(path.join(uploads, filename), optimized);
   res.status(201).json({ url: `/uploads/${filename}` });
 });
 app.use("/api", (_req, res) =>
@@ -597,32 +722,25 @@ app.use("/api", (_req, res) =>
 );
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof z.ZodError)
-    return res
-      .status(400)
-      .json({
-        error: err.issues
-          .map((i) => `${i.path.join(".")}: ${i.message}`)
-          .join("; "),
-      });
+    return res.status(400).json({
+      error: err.issues
+        .map((i) => `${i.path.join(".")}: ${i.message}`)
+        .join("; "),
+    });
   if (err instanceof HttpError)
     return res.status(err.status).json({ error: err.message });
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === "P2002")
-      return res
-        .status(409)
-        .json({
-          error:
-            "This record already exists. Please retry or choose a unique value.",
-        });
+      return res.status(409).json({
+        error:
+          "This record already exists. Please retry or choose a unique value.",
+      });
     if (err.code === "P2025")
       return res.status(404).json({ error: "Record not found." });
     if (["P1008", "P2028", "P2034"].includes(err.code))
-      return res
-        .status(409)
-        .json({
-          error:
-            "Another order is being processed. Please retry your checkout.",
-        });
+      return res.status(409).json({
+        error: "Another order is being processed. Please retry your checkout.",
+      });
   }
   if (err instanceof multer.MulterError)
     return res.status(400).json({ error: err.message });

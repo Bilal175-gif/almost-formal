@@ -2,6 +2,7 @@ import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import request from "supertest";
 import { hash } from "argon2";
+import sharp from "sharp";
 import { randomUUID } from "node:crypto";
 import { app } from "../apps/api/src/app.js";
 import { db } from "../apps/api/src/db.js";
@@ -63,6 +64,21 @@ const payload = (id: string, key = randomUUID()) => ({
   idempotencyKey: key,
   paymentMethod: "cod",
 });
+test("CORS preflight and API responses are scoped and uncached", async () => {
+  const allowed = await request(app)
+    .options("/api/products")
+    .set("Origin", "http://localhost:3000")
+    .set("Access-Control-Request-Method", "GET");
+  assert.equal(allowed.status, 204);
+  assert.equal(allowed.headers["access-control-allow-origin"], "http://localhost:3000");
+  const denied = await request(app)
+    .options("/api/products")
+    .set("Origin", "https://untrusted.example.test");
+  assert.equal(denied.status, 403);
+  const health = await request(app).get("/api/health");
+  assert.equal(health.body.service, "almost-formal-api");
+  assert.equal(health.headers["cache-control"], "private, no-store");
+});
 test("product retrieval, search and filters use database records", async () => {
   const p = await product();
   const r = await request(app).get(
@@ -74,6 +90,18 @@ test("product retrieval, search and filters use database records", async () => {
   assert.equal(miss.body.total, 0);
   const detail = await request(app).get(`/api/products/${p.slug}`);
   assert.equal(detail.body.sku, p.sku);
+  const filters = await request(app).get("/api/product-filters");
+  assert.equal(filters.status, 200);
+  assert.ok(filters.body.colors.includes("Green"));
+  const soldOut = await product(0);
+  await db.product.update({
+    where: { id: soldOut.id },
+    data: { title: "Sold Out Test Tie" },
+  });
+  const available = await request(app).get(
+    "/api/products?search=Sold%20Out%20Test%20Tie&inStock=true",
+  );
+  assert.equal(available.body.total, 0);
 });
 test("checkout rejects empty items, invalid address and duplicate product rows", async () => {
   const invalid = await request(app)
@@ -124,9 +152,15 @@ test("order is saved with snapshots, server prices, stock deduction and scoped a
 test("idempotency prevents double deduction and rejects changed request bodies", async () => {
   const p = await product(2);
   const input = payload(p.id);
-  const first = await createOrder(input);
-  const second = await createOrder(input);
+  let notifications = 0;
+  const first = await createOrder(input, () => {
+    notifications += 1;
+  });
+  const second = await createOrder(input, () => {
+    notifications += 1;
+  });
   assert.equal(first.id, second.id);
+  assert.equal(notifications, 1);
   assert.equal(
     (await db.product.findUniqueOrThrow({ where: { id: p.id } })).stock,
     1,
@@ -215,6 +249,15 @@ test("admin authentication, authorization, CSRF and product management", async (
   const me = await agent.get("/api/auth/me");
   assert.equal(me.status, 200);
   const csrf = me.body.csrfToken;
+  const image = await sharp({
+    create: { width: 20, height: 20, channels: 3, background: "#aabbcc" },
+  }).png().toBuffer();
+  const uploaded = await agent
+    .post("/api/admin/uploads")
+    .set("x-csrf-token", csrf)
+    .attach("image", image, { filename: "test.png", contentType: "image/png" });
+  assert.equal(uploaded.status, 201);
+  assert.match(uploaded.body.url, /^\/uploads\/[a-f0-9]+\.webp$/);
   assert.equal(
     (await agent.patch("/api/admin/settings").send({ shipping: 1 })).status,
     403,

@@ -8,6 +8,10 @@ const env = {
   ...process.env,
   NODE_ENV: "test",
   DATABASE_URL: `file:${join(dir, "test.db")}`,
+  UPLOAD_DIR: join(dir, "uploads"),
+  CLOUDINARY_CLOUD_NAME: "",
+  CLOUDINARY_API_KEY: "",
+  CLOUDINARY_API_SECRET: "",
 };
 let status = 1;
 try {

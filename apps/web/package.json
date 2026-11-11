@@ -4,11 +4,15 @@
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0 --port ${WEB_PORT:-3000}",
     "build": "next build --webpack",
+    "cf:build": "opennextjs-cloudflare build",
+    "cf:preview": "opennextjs-cloudflare preview --env staging",
+    "cf:deploy:staging": "opennextjs-cloudflare deploy --env staging",
     "start": "next start --hostname 0.0.0.0 --port ${WEB_PORT:-3000}"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@tanstack/react-query": "^5.90.5",
+    "framer-motion": "^12.43.0",
     "lucide-react": "^0.548.0",
     "next": "^16.4.5",
     "react": "^19.2.0",
@@ -18,9 +22,11 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^1.20.16",
     "@tailwindcss/postcss": "^4.1.16",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
-    "tailwindcss": "^4.1.16"
+    "tailwindcss": "^4.1.16",
+    "wrangler": "^4.160.1"
   }
 }

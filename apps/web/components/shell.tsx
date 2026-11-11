@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   Menu,
@@ -11,10 +10,9 @@ import {
   Home,
   Heart,
   UserRound,
-  Leaf,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
-import { api, type Settings } from "@/lib/api";
+import { api } from "@/lib/api";
 import { Star, Smile } from "./doodles";
 import { Modal, Toast } from "./ui";
 import { CartContents } from "./cart";
@@ -36,23 +34,11 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const s = useStore();
   const [searchOpen, setSearchOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const { data: settings } = useQuery({
-    queryKey: ["settings"],
-    queryFn: () => api<Settings>("/settings"),
-  });
   return (
     <>
       <a className="skip-link" href="#main">
         Skip to content
       </a>
-      <div className="announcement">
-        <span>
-          {settings?.announcement || "ONE-OF-ONE FINDS. SECOND-CHANCE STORIES."}
-        </span>
-        <span>
-          Carefully picked. Ready to be loved again. <Leaf size={12} />
-        </span>
-      </div>
       <div className="site-wrap">
         <header className="header paper">
           <button

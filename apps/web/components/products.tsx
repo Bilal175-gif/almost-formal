@@ -3,17 +3,11 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Heart,
-  Plus,
-  ArrowRight,
-  Search,
-  Eye,
-  Minus,
-} from "lucide-react";
+import { Heart, Plus, ArrowRight, Search, Eye, Minus } from "lucide-react";
 import type { Product } from "../../../packages/shared";
 import { money } from "../../../packages/shared";
 import { api } from "@/lib/api";
+import { productImageUrl, productImageSrcSet } from "@/lib/cloudinary-image";
 import { useStore } from "@/lib/store";
 import { Star, Smile } from "./doodles";
 import { ErrorBox, Modal } from "./ui";
@@ -22,6 +16,13 @@ type ProductList = {
   total: number;
   pages: number;
   page: number;
+};
+type ProductFilters = {
+  categories: string[];
+  patterns: string[];
+  colors: string[];
+  conditions: string[];
+  maxPrice: number;
 };
 export function ProductCard({
   product: p,
@@ -33,17 +34,18 @@ export function ProductCard({
   const s = useStore();
   const [quick, setQuick] = useState(false);
   const wished = s.wishlist.includes(p.id);
+  const imageUrl = p.images[0]?.url.startsWith("/images/instagram/")
+    ? p.images[0].url.replace("-0.webp", "-thumb.webp")
+    : p.images[0]?.url;
   return (
     <>
-      <article
-        className={`product-card ${p.stock === 0 ? "sold" : ""}`}
-      >
+      <article className={`product-card ${p.stock === 0 ? "sold" : ""}`}>
         <div className="product-image">
           <Link href={`/product/${p.slug}`}>
             <img
-              src={p.images[0]?.url.startsWith("/images/instagram/")
-                ? p.images[0].url.replace("-0.webp", "-thumb.webp")
-                : p.images[0]?.url}
+              src={productImageUrl(imageUrl, 640)}
+              srcSet={productImageSrcSet(imageUrl, [320, 640, 960])}
+              sizes="(max-width: 600px) 50vw, (max-width: 1000px) 33vw, 25vw"
               alt={p.images[0]?.alt || p.title}
               loading={index < 4 ? "eager" : "lazy"}
               width={384}
@@ -58,9 +60,8 @@ export function ProductCard({
           >
             <Heart size={21} fill={wished ? "currentColor" : "none"} />
           </button>
-          {index === 2 && <span className="product-sticker">Vintage</span>}
-          {index === 3 && (
-            <span className="product-sticker yellow">Rare find</span>
+          {p.stock === 1 && (
+            <span className="product-sticker yellow">Only one left</span>
           )}
           {p.stock === 0 && <span className="sold-label">Found a home</span>}
           <button
@@ -92,9 +93,16 @@ export function ProductCard({
         label={p.title}
         className="quick-modal"
       >
-        <img src={p.images[0]?.url} alt={p.title} />
+        <img
+          src={productImageUrl(p.images[0]?.url, 960)}
+          srcSet={productImageSrcSet(p.images[0]?.url, [480, 960, 1280])}
+          sizes="(max-width: 600px) 90vw, 480px"
+          alt={p.title}
+        />
         <div>
-          <span className="eyebrow">ONE OF ONE</span>
+          <span className="eyebrow">
+            {p.stock === 1 ? "ONE OF ONE" : "VINTAGE FIND"}
+          </span>
           <h2>{p.title}</h2>
           <h3>{money(p.price)}</h3>
           <p>{p.description}</p>
@@ -193,6 +201,17 @@ export function Collection({ wishlist = false }: { wishlist?: boolean }) {
   const [debounced, setDebounced] = useState(search);
   const [sort, setSort] = useState("newest");
   const [page, setPage] = useState(1);
+  const [category, setCategory] = useState("");
+  const [pattern, setPattern] = useState("");
+  const [color, setColor] = useState("");
+  const [condition, setCondition] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [inStock, setInStock] = useState(true);
+  const { data: filters } = useQuery({
+    queryKey: ["product-filters"],
+    queryFn: () => api<ProductFilters>("/product-filters"),
+    enabled: !wishlist,
+  });
   useEffect(() => {
     const t = setTimeout(() => {
       setDebounced(search);
@@ -206,6 +225,14 @@ export function Collection({ wishlist = false }: { wishlist?: boolean }) {
     page: String(page),
     limit: wishlist ? "100" : "12",
   });
+  if (!wishlist) {
+    if (category) query.set("category", category);
+    if (pattern) query.set("pattern", pattern);
+    if (color) query.set("color", color);
+    if (condition) query.set("condition", condition);
+    if (maxPrice) query.set("maxPrice", maxPrice);
+    if (inStock) query.set("inStock", "true");
+  }
   const { data, isPending, error, refetch } = useQuery({
     queryKey: ["products", query.toString()],
     queryFn: () => api<ProductList>(`/products?${query}`),
@@ -264,6 +291,88 @@ export function Collection({ wishlist = false }: { wishlist?: boolean }) {
             </select>
           </label>
         </div>
+        {!wishlist && (
+          <div className="collection-filters" aria-label="Filter products">
+            {(
+              [
+                ["Category", category, setCategory, filters?.categories],
+                ["Pattern", pattern, setPattern, filters?.patterns],
+                ["Color", color, setColor, filters?.colors],
+                ["Condition", condition, setCondition, filters?.conditions],
+              ] as const
+            ).map(([label, value, setValue, options]) => (
+              <label key={label}>
+                <span>{label}</span>
+                <select
+                  value={value}
+                  onChange={(event) => {
+                    setValue(event.target.value);
+                    setPage(1);
+                  }}
+                >
+                  <option value="">All {label.toLowerCase()}s</option>
+                  {options?.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ))}
+            <label>
+              <span>Price</span>
+              <select
+                value={maxPrice}
+                onChange={(event) => {
+                  setMaxPrice(event.target.value);
+                  setPage(1);
+                }}
+              >
+                <option value="">Any price</option>
+                {[100000, 150000, 200000, 250000, 300000, 500000]
+                  .filter((price) => !filters || price < filters.maxPrice)
+                  .map((price) => (
+                    <option key={price} value={price}>
+                      Under {money(price)}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            <label className="stock-filter">
+              <input
+                type="checkbox"
+                checked={inStock}
+                onChange={(event) => {
+                  setInStock(event.target.checked);
+                  setPage(1);
+                }}
+              />
+              In stock only
+            </label>
+            {(category ||
+              pattern ||
+              color ||
+              condition ||
+              maxPrice ||
+              !inStock) && (
+              <button
+                className="text-link"
+                type="button"
+                onClick={() => {
+                  setCategory("");
+                  setPattern("");
+                  setColor("");
+                  setCondition("");
+                  setMaxPrice("");
+                  setInStock(true);
+                  setPage(1);
+                }}
+              >
+                Clear filters
+              </button>
+            )}
+          </div>
+        )}
         {isPending ? (
           <ProductSkeletons />
         ) : error ? (

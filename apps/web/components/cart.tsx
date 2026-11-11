@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { api, type Settings } from "@/lib/api";
+import { productImageUrl } from "@/lib/cloudinary-image";
 import { money } from "../../../packages/shared";
 export function CartContents({ drawer = false }: { drawer?: boolean }) {
   const s = useStore();
@@ -41,7 +42,7 @@ export function CartContents({ drawer = false }: { drawer?: boolean }) {
                   href={`/product/${p.slug}`}
                   onClick={() => s.setCart(false)}
                 >
-                  <img src={p.images[0]?.url} alt={p.title} />
+                  <img src={productImageUrl(p.images[0]?.url, 160)} alt={p.title} />
                 </Link>
                 <div>
                   <Link

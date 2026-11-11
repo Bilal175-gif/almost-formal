@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
+import type { Prisma } from "@prisma/client";
 import { checkoutSchema } from "../../../packages/shared/index.js";
 import { db } from "./db.js";
 export class HttpError extends Error {
@@ -15,7 +16,11 @@ export const orderInclude = {
   payment: true,
   shipment: true,
 } as const;
-export async function createOrder(input: unknown) {
+type OrderDetails = Prisma.OrderGetPayload<{ include: typeof orderInclude }>;
+export async function createOrder(
+  input: unknown,
+  onCreated?: (order: OrderDetails) => void,
+) {
   const data = checkoutSchema.parse(input);
   const ids = data.items.map((i) => i.productId);
   if (new Set(ids).size !== ids.length)
@@ -23,7 +28,7 @@ export async function createOrder(input: unknown) {
   const requestHash = createHash("sha256")
     .update(JSON.stringify(data))
     .digest("hex");
-  return db.$transaction(
+  const result = await db.$transaction(
     async (tx) => {
       const previous = await tx.order.findUnique({
         where: { idempotencyKey: data.idempotencyKey },
@@ -35,7 +40,7 @@ export async function createOrder(input: unknown) {
             409,
             "Checkout details changed. Please start a new checkout.",
           );
-        return previous;
+        return { order: previous, created: false };
       }
       const settings = await tx.storeSettings.findUniqueOrThrow({
         where: { id: "store" },
@@ -104,10 +109,12 @@ export async function createOrder(input: unknown) {
           orderId: order.id,
         })),
       });
-      return order;
+      return { order, created: true };
     },
     { maxWait: 10000, timeout: 15000 },
   );
+  if (result.created) onCreated?.(result.order);
+  return result.order;
 }
 const transitions: Record<string, string[]> = {
   pending: ["confirmed", "cancelled"],
