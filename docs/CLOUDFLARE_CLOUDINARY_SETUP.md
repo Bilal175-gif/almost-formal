@@ -9,9 +9,19 @@ Prepared on 12 November 2026. This branch contains configuration only; no Cloudf
 - **Images:** The existing admin upload route optionally uses Cloudinary's server-side signed SDK when all three Cloudinary credentials are configured. Otherwise it continues writing local WebP files. Existing `/uploads` and `/images` URLs continue to work. New Cloudinary images are stored under `almost-formal/products` and delivered with `f_auto,q_auto` responsive URLs.
 - **Traffic:** Browser → frontend Worker → HTTPS Node API. Browser API calls remain same-origin at `/api/*`; the Worker proxies them to `API_URL`. The Node API must be reachable from Cloudflare over public HTTPS. `127.0.0.1` works only for local development.
 
+## Zero-to-staging order for almostformal.shop
+
+1. Create/sign in to Cloudinary Free and copy the automatically assigned **Cloud name** from the dashboard. Find the API key and secret under **Settings → API Keys**; keep the secret out of chat and Git.
+2. Put all three `CLOUDINARY_*` values in the Node API host's private environment and restart the API. Confirm a test admin upload appears in Cloudinary's Media Library. No unsigned upload preset is needed because the Node SDK signs uploads.
+3. Create/sign in to Cloudflare Free. The first staging frontend can use `workers.dev` without changing `almostformal.shop` DNS. Expose the localhost API temporarily with a [Quick Tunnel](https://developers.cloudflare.com/tunnel/get-started/quick-tunnels/) for a short test, or use a named Tunnel and `api-staging.almostformal.shop` after the domain is active on Cloudflare.
+4. Build/deploy only `almost-formal-web-staging`, using the HTTPS tunnel origin as `API_URL` and the Cloudinary cloud name as `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`. Verify `/api/health`, products, admin upload, and a test COD order.
+5. Before changing nameservers for `almostformal.shop`, copy all existing DNS records (including email MX/TXT records) into Cloudflare and check the current site's routing. Nameserver changes affect the whole domain. Keep production routing unchanged until a separate approved cutover.
+
+A Quick Tunnel URL changes on restart and is only for temporary testing. A named Tunnel has a stable hostname but still depends on the laptop staying online. A production Node API needs persistent hosting for SQLite and historical uploads.
+
 ## 1. Cloudflare account and staging Worker
 
-1. Add your domain to Cloudflare in **Websites → Add a domain** and use the Free plan. Follow the displayed nameserver instructions at your registrar. Do not change the production DNS record until staging is verified.
+1. A staging Worker can use its `workers.dev` URL without a custom domain. For a stable staging API hostname through Cloudflare Tunnel, add your domain to Cloudflare in **Websites → Add a domain**, choose Free, and follow the displayed nameserver instructions at your registrar. Do not change the production website DNS record until staging is verified.
 2. In **Workers & Pages**, note the account ID shown in the dashboard/account URL (or the account details panel). Create an account-scoped API token at **Profile → API Tokens → Create Token → Edit Cloudflare Workers**. Restrict it to this account. [Cloudflare's GitHub Actions guide](https://developers.cloudflare.com/workers/ci-cd/external-cicd/github-actions/) describes the token and account ID requirements.
 3. The staging Worker name is `almost-formal-web-staging`; the production Worker name is `almost-formal-web`. They are declared in `apps/web/wrangler.jsonc`. No custom domain is configured in that file, so staging can be checked on its `workers.dev` URL first.
 4. In the staging Worker dashboard, use **Settings → Variables and Secrets** for runtime values if needed. The frontend's `API_URL` rewrite is compiled at build time, so the same value must be present in the build environment. Set it to the public HTTPS Node API origin, for example `https://api-staging.example.com`, with no trailing `/api`. Set `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` to the Cloudinary cloud name at build time. Never put `CLOUDINARY_API_SECRET` in the frontend Worker.
@@ -23,6 +33,12 @@ Prepared on 12 November 2026. This branch contains configuration only; no Cloudf
 2. On the **Node API host only**, set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` in its secret environment. Set the public cloud name as `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` in the frontend build environment. The API secret must never be a `NEXT_PUBLIC_*` variable or a GitHub repository variable.
 3. The admin upload remains authenticated and CSRF protected. It accepts one JPEG, PNG, or WebP under 5 MB, verifies that Sharp can decode it, limits pixels, converts to WebP, and signs the upload on the server. The database stores Cloudinary's HTTPS URL. Replacing or deleting a saved product schedules deletion of assets not referenced by products or historical orders. Unsaved uploads abandoned before a product is saved may need cleanup in the Cloudinary Media Library.
 4. Existing local uploads are **not migrated**. Keep the Node host's `UPLOAD_DIR` and all existing files. Do not enable Cloudinary and remove the local directory until historical URLs have been separately migrated and checked.
+
+### If the Node API currently runs only on localhost
+
+The frontend Worker cannot reach `127.0.0.1` on your laptop. For **staging only**, keep the Node API running locally and create a remotely managed [Cloudflare Tunnel](https://developers.cloudflare.com/tunnel/get-started/) in **Networking → Tunnels → Create Tunnel**. Name it `almost-formal-staging-api`, install `cloudflared` using the dashboard's Ubuntu command on the machine running the API, then add a **Published application** route for `api-staging.almostformal.shop` to `http://localhost:4100` (or the actual `PORT`). Start the tunnel connector and check `https://api-staging.almostformal.shop/api/health` returns `service: almost-formal-api`. Use `https://api-staging.almostformal.shop` as `STAGING_API_URL` and `API_URL` when building the frontend. The laptop and connector must stay running for staging to work.
+
+Do not use a temporary Quick Tunnel URL in the committed build: it changes when restarted. For production, move the Node API, SQLite database, and historical uploads together to a persistent Node host with HTTPS before cutting over the frontend.
 
 ## 3. Environment variables
 
@@ -94,6 +110,8 @@ The database migration above is a future operator step; this branch does not run
 ## 5. GitHub Actions
 
 `.github/workflows/cloudflare-deploy.yml` is **manual only** (`workflow_dispatch`). Its default run validates the Node API and builds the frontend; it does not deploy. Selecting `deploy_staging=true` deploys only the staging frontend Worker. There is no production deployment job.
+
+GitHub only displays/runs a `workflow_dispatch` workflow after its file exists on the repository's default branch. While this configuration is only on the feature branch, use the local Wrangler staging command in section 4. After the pull request is reviewed and merged, the workflow can be run on `main` with `deploy_staging=false` for validation, then `true` for a later staging deployment.
 
 In GitHub **Settings → Secrets and variables → Actions**:
 
