@@ -15,6 +15,7 @@ import sharp from "sharp";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 import { db } from "./db.js";
+import { publicCache } from "./public-cache.js";
 import {
   createOrder,
   HttpError,
@@ -34,6 +35,12 @@ import {
 } from "./cloudinary.js";
 export const app = express();
 app.disable("x-powered-by");
+// Render's final proxy hop. Never trust arbitrary X-Forwarded-For by default.
+const proxyHops = Number(process.env.TRUST_PROXY_HOPS || 0);
+if (Number.isInteger(proxyHops) && proxyHops > 0 && proxyHops <= 5)
+  app.set("trust proxy", proxyHops);
+sharp.cache(false);
+sharp.concurrency(1);
 app.use(helmet());
 app.use(express.json({ limit: "100kb" }));
 app.use(cookieParser());
@@ -119,6 +126,7 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 const images = { images: { orderBy: { position: "asc" as const } } };
+app.use(publicCache(Math.min(60, Math.max(0, Number(process.env.PUBLIC_CACHE_TTL_SECONDS) || 0))));
 app.get("/api/health", (_req, res) =>
   res.json({ ok: true, service: "almost-formal-api" }),
 );
@@ -145,9 +153,9 @@ app.get("/api/products", async (req, res) => {
     ...(q.search
       ? {
           OR: [
-            { title: { contains: q.search } },
-            { description: { contains: q.search } },
-            { pattern: { contains: q.search } },
+            { title: { contains: q.search, ...(/^postgres/.test(process.env.DATABASE_URL || "") ? { mode: "insensitive" as const } : {}) } },
+            { description: { contains: q.search, ...(/^postgres/.test(process.env.DATABASE_URL || "") ? { mode: "insensitive" as const } : {}) } },
+            { pattern: { contains: q.search, ...(/^postgres/.test(process.env.DATABASE_URL || "") ? { mode: "insensitive" as const } : {}) } },
           ],
         }
       : {}),
@@ -691,6 +699,8 @@ app.use(
   express.static(uploads, { dotfiles: "deny", immutable: true, maxAge: "1y" }),
 );
 app.post("/api/admin/uploads", upload.single("image"), async (req, res) => {
+  if (process.env.STORAGE_MODE === "cloudinary" && !cloudinaryConfigured())
+    throw new HttpError(503, "Configure Cloudinary before uploading product images.");
   if (!req.file)
     throw new HttpError(400, "Choose a JPEG, PNG or WebP image under 5 MB.");
   let optimized: Buffer;
@@ -701,7 +711,7 @@ app.post("/api/admin/uploads", upload.single("image"), async (req, res) => {
     optimized = await sharp(req.file.buffer, { limitInputPixels: 25000000 })
       .rotate()
       .resize(1600, 2000, { fit: "inside", withoutEnlargement: true })
-      .webp({ quality: 88 })
+      .webp({ quality: 80 })
       .toBuffer();
   } catch {
     throw new HttpError(400, "Choose a valid JPEG, PNG or WebP image under 5 MB and 25 megapixels.");

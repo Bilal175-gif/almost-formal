@@ -1,5 +1,7 @@
 # Cloudflare Workers + Cloudinary preparation
 
+For the current Free Render backend with persistent Neon PostgreSQL, use [Render Free setup](RENDER_FREE_SETUP.md). SQLite/persistent-host instructions below describe the original option. The production frontend Worker now uses the existing Cloudflare project name `almost-formal`.
+
 Prepared on 12 November 2026. This branch contains configuration only; no Cloudflare Worker, DNS record, Cloudinary account setting, or production service has been changed.
 
 ## Architecture and compatibility

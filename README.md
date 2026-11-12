@@ -89,6 +89,8 @@ Playwright defaults to the installed Chrome executable at `/opt/google/chrome/ch
 
 ## Build and deploy
 
+For **Cloudflare frontend + Render Free API + Neon PostgreSQL + Cloudinary**, follow [Render Free setup](docs/RENDER_FREE_SETUP.md). Use `npm run build:render` and `npm run start:render` for that backend. The SQLite commands below describe the separate persistent-host option.
+
 For the optional Cloudflare Workers frontend and Cloudinary image setup, see [Cloudflare + Cloudinary setup](docs/CLOUDFLARE_CLOUDINARY_SETUP.md). The Express/SQLite API remains a Node service on persistent storage.
 
 ```bash

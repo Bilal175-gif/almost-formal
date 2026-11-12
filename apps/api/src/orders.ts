@@ -145,6 +145,13 @@ export async function updateOrderStatus(
         400,
         "A tracking number is required before shipping.",
       );
+    // PostgreSQL permits concurrent transactions: claim this transition before
+    // restoring stock, collecting COD or writing an audit record.
+    const claimed = await tx.order.updateMany({
+      where: { id, status: order.status }, data: { status },
+    });
+    if (claimed.count !== 1)
+      throw new HttpError(409, "Order status changed. Refresh and retry.");
     if (status === "cancelled")
       for (const item of order.items) {
         await tx.product.update({

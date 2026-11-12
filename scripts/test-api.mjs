@@ -12,6 +12,9 @@ const env = {
   CLOUDINARY_CLOUD_NAME: "",
   CLOUDINARY_API_KEY: "",
   CLOUDINARY_API_SECRET: "",
+  STORAGE_MODE: "local",
+  PUBLIC_CACHE_TTL_SECONDS: "0",
+  TRUST_PROXY_HOPS: "0",
 };
 let status = 1;
 try {
@@ -29,7 +32,7 @@ try {
   if (migration.status === 0) {
     const result = spawnSync(
       "node",
-      ["--import", "tsx", "--test", "tests/api.test.ts"],
+      ["--import", "tsx", "--test", "tests/api.test.ts", "tests/deployment.test.ts"],
       { stdio: "inherit", env },
     );
     status = result.status ?? 1;

@@ -183,6 +183,17 @@ test("competing buyers cannot purchase the same single-stock item", async () => 
   );
   assert.equal(await db.orderItem.count({ where: { productId: p.id } }), 1);
 });
+test("simultaneous cancellation restores stock once", async () => {
+  const p = await product();
+  const order = await createOrder(payload(p.id));
+  const results = await Promise.allSettled([
+    updateOrderStatus(order.id, "cancelled", adminId),
+    updateOrderStatus(order.id, "cancelled", adminId),
+  ]);
+  assert.ok(results.some((result) => result.status === "fulfilled"));
+  assert.equal((await db.product.findUniqueOrThrow({ where: { id: p.id } })).stock, 1);
+  assert.equal(await db.inventoryMovement.count({ where: { orderId: order.id, reason: "Order cancelled" } }), 1);
+});
 test("failed mixed-stock order rolls back earlier inventory deduction", async () => {
   const available = await product();
   const sold = await product(0);

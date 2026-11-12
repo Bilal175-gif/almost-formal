@@ -1,14 +1,16 @@
 import nodemailer from "nodemailer";
 import type { Prisma } from "@prisma/client";
 import { orderInclude } from "./orders.js";
+import { resendTransport } from "./email-delivery.js";
 
 type OrderDetails = Prisma.OrderGetPayload<{ include: typeof orderInclude }>;
 
-const from = process.env.SMTP_FROM || process.env.SMTP_USER;
+const from = process.env.EMAIL_FROM || process.env.SMTP_FROM || process.env.SMTP_USER;
 const adminEmail = process.env.STORE_NOTIFICATION_EMAIL;
 
-const transport =
+const smtpTransport =
   process.env.NODE_ENV !== "test" &&
+  !process.env.RENDER &&
   process.env.SMTP_HOST &&
   process.env.SMTP_USER &&
   process.env.SMTP_PASSWORD &&
@@ -25,20 +27,25 @@ const transport =
         connectionTimeout: 10000,
       })
     : null;
+const transport = process.env.NODE_ENV === "test" ? null :
+  process.env.RESEND_API_KEY && from ? resendTransport(process.env.RESEND_API_KEY) : smtpTransport;
 
 export function mailStatus() {
-  return transport
-    ? "configured (run npm run smtp:test)"
-    : "disabled (set SMTP_PASSWORD in .env)";
+  if (process.env.RESEND_API_KEY && transport) return "Resend HTTPS configured";
+  if (smtpTransport) return "SMTP configured (run npm run smtp:test)";
+  return process.env.RENDER
+    ? "disabled (Render Free: set RESEND_API_KEY and verified EMAIL_FROM)"
+    : "disabled (configure Resend or SMTP)";
 }
 
 export async function sendSmtpTest() {
-  if (!transport || !from || !process.env.SMTP_USER)
+  if (!transport || !from)
     throw new Error(
-      "SMTP is incomplete. Set SMTP_HOST, SMTP_USER, SMTP_PASSWORD and SMTP_FROM in .env.",
+      "Configure RESEND_API_KEY/EMAIL_FROM or SMTP_HOST/SMTP_USER/SMTP_PASSWORD/SMTP_FROM.",
     );
-  await transport.verify();
+  if (transport === smtpTransport) await smtpTransport!.verify();
   const to = adminEmail || process.env.SMTP_USER;
+  if (!to) throw new Error("Set STORE_NOTIFICATION_EMAIL for the email test.");
   await transport.sendMail({
     from,
     to,
