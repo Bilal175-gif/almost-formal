@@ -3,7 +3,12 @@ import assert from "node:assert/strict";
 import express from "express";
 import request from "supertest";
 import { publicCache } from "../apps/api/src/public-cache.js";
-import { databaseUrl } from "../apps/api/src/runtime.js";
+import {
+  databaseUrl,
+  initialAdminCredentials,
+  startupErrorMessage,
+  validateHostedEnvironment,
+} from "../apps/api/src/runtime.js";
 import { resendTransport } from "../apps/api/src/email-delivery.js";
 
 test("Neon connection defaults are bounded and preserve user overrides", () => {
@@ -22,6 +27,40 @@ test("Neon connection defaults are bounded and preserve user overrides", () => {
     "1",
   );
   assert.equal(databaseUrl("file:./dev.db"), "file:./dev.db");
+});
+
+test("hosted startup identifies invalid fields without printing secrets", () => {
+  const env = {
+    DATABASE_URL: "postgresql://user:private-password@example.test/db",
+    APP_ORIGIN: "https://frontend.example.com",
+  };
+  assert.throws(
+    () => validateHostedEnvironment(env),
+    /CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET/,
+  );
+  assert.throws(
+    () => validateHostedEnvironment({ ...env, APP_ORIGIN: "invalid" }),
+    /APP_ORIGIN/,
+  );
+  assert.throws(
+    () =>
+      initialAdminCredentials({
+        ADMIN_EMAIL: "invalid",
+        ADMIN_PASSWORD: "private",
+      }),
+    (error: unknown) => {
+      const message = startupErrorMessage(error, "admin creation");
+      assert.match(message, /ADMIN_EMAIL, ADMIN_PASSWORD/);
+      assert.ok(!message.includes("private"));
+      return true;
+    },
+  );
+  const message = startupErrorMessage(
+    Object.assign(new Error(env.DATABASE_URL), { code: "P1001" }),
+    "store initialization",
+  );
+  assert.match(message, /store initialization \(P1001\)/);
+  assert.ok(!message.includes("private-password"));
 });
 
 test("public cache reduces reads, invalidates on checkout, and excludes private/health routes", async () => {

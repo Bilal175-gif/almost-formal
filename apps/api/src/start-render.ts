@@ -1,10 +1,15 @@
 import { hash } from "argon2";
-import { z } from "zod";
 import { db } from "./db.js";
-import { validateHostedEnvironment } from "./runtime.js";
+import {
+  validateHostedEnvironment,
+  initialAdminCredentials,
+  startupErrorMessage,
+} from "./runtime.js";
 
+let stage = "environment validation";
 try {
   validateHostedEnvironment();
+  stage = "store initialization";
   // Idempotent setup: no demo products and no reset of existing settings/stock.
   await db.storeSettings.upsert({
     where: { id: "store" },
@@ -24,12 +29,8 @@ try {
       update: {},
     });
   if (!(await db.admin.count())) {
-    const email = z.email().parse(process.env.ADMIN_EMAIL);
-    const password = z
-      .string()
-      .min(12)
-      .max(256)
-      .parse(process.env.ADMIN_PASSWORD);
+    stage = "initial administrator creation";
+    const { email, password } = initialAdminCredentials();
     const passwordHash = await hash(password);
     await db.user.upsert({
       where: { email },
@@ -45,15 +46,15 @@ try {
       "Initial administrator created. Remove ADMIN_PASSWORD from Render after the first deploy.",
     );
   }
+  stage = "expired session cleanup";
   await db.session.deleteMany({ where: { expiresAt: { lt: new Date() } } });
   process.env.HOST = "0.0.0.0";
   process.env.STORAGE_MODE = "cloudinary";
+  stage = "HTTP server loading";
   await import("./server.js");
-} catch {
+} catch (error) {
   // Do not serialize Prisma or validation errors containing private values.
-  console.error(
-    "Render startup failed. Check PostgreSQL connectivity, APP_ORIGIN, Cloudinary credentials and initial ADMIN_EMAIL/ADMIN_PASSWORD (12+ characters).",
-  );
+  console.error(startupErrorMessage(error, stage));
   await db.$disconnect();
   process.exitCode = 1;
 }
