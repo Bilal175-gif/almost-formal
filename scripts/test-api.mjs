@@ -32,7 +32,7 @@ try {
   if (migration.status === 0) {
     const result = spawnSync(
       "node",
-      ["--import", "tsx", "--test", "tests/api.test.ts", "tests/deployment.test.ts"],
+      ["--import", "tsx", "--test", "tests/api.test.ts", "tests/deployment.test.ts", "tests/client-api.test.ts"],
       { stdio: "inherit", env },
     );
     status = result.status ?? 1;
