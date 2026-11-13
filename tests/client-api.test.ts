@@ -70,11 +70,11 @@ test("store API preserves valid data, auth errors and multipart uploads", async 
   }
 });
 
-test("temporary read failures retry finitely; authentication and rate limits do not retry", () => {
+test("temporary read failures allow cold starts; authentication and rate limits do not retry", () => {
   const temporary = new ApiError("Unavailable", 503);
   assert.equal(shouldRetryApiQuery(0, temporary), true);
-  assert.equal(shouldRetryApiQuery(1, temporary), true);
-  assert.equal(shouldRetryApiQuery(2, temporary), false);
+  assert.equal(shouldRetryApiQuery(4, temporary), true);
+  assert.equal(shouldRetryApiQuery(5, temporary), false);
   assert.equal(
     shouldRetryApiQuery(0, new ApiError("Unauthorized", 401)),
     false,
@@ -83,6 +83,6 @@ test("temporary read failures retry finitely; authentication and rate limits do 
     shouldRetryApiQuery(0, new ApiError("Rate limited", 429)),
     false,
   );
-  assert.equal(apiRetryDelay(0, temporary), 5000);
-  assert.equal(apiRetryDelay(1, temporary), 10000);
+  assert.equal(apiRetryDelay(0, temporary), 3000);
+  assert.equal(apiRetryDelay(4, temporary), 12000);
 });
