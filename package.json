@@ -17,7 +17,7 @@
     "db:seed": "tsx apps/api/prisma/seed.ts",
     "admin:create": "tsx apps/api/src/create-admin.ts",
     "db:generate:production": "node scripts/postgres-schema.mjs && prisma generate --schema apps/api/prisma-postgres/schema.prisma",
-    "db:migrate:production": "node scripts/postgres-schema.mjs && prisma migrate deploy --schema apps/api/prisma-postgres/schema.prisma",
+    "db:migrate:production": "node scripts/postgres-schema.mjs && node scripts/migrate-production.mjs",
     "build:render": "npm run db:generate:production && npm run build -w @almost-formal/api",
     "start:render": "npm run db:migrate:production && node apps/api/dist/apps/api/src/start-render.js",
     "test:postgres": "node scripts/test-postgres.mjs",

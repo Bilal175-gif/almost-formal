@@ -10,6 +10,24 @@ import {
   validateHostedEnvironment,
 } from "../apps/api/src/runtime.js";
 import { resendTransport } from "../apps/api/src/email-delivery.js";
+import { migrationDatabaseUrl } from "../scripts/migration-database-url.mjs";
+
+test("production migrations bypass Neon pooler without changing runtime URL", () => {
+  const pooled = "postgresql://user:secret@ep-example-pooler.c-4.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&pgbouncer=true";
+  const direct = migrationDatabaseUrl(pooled);
+  assert.equal(new URL(direct).hostname, "ep-example.c-4.ap-southeast-1.aws.neon.tech");
+  assert.equal(new URL(direct).searchParams.get("sslmode"), "require");
+  assert.equal(new URL(direct).searchParams.has("pgbouncer"), false);
+  assert.match(pooled, /-pooler/);
+  assert.equal(
+    migrationDatabaseUrl("postgresql://u:p@localhost:5432/test"),
+    "postgresql://u:p@localhost:5432/test",
+  );
+  assert.throws(
+    () => migrationDatabaseUrl(pooled, pooled),
+    /DIRECT_URL must use the Neon direct endpoint/,
+  );
+});
 
 test("Neon connection defaults are bounded and preserve user overrides", () => {
   const result = new URL(

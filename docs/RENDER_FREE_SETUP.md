@@ -6,7 +6,7 @@ The screenshot's "$0/mo plus compute costs" is a workspace price, not a free com
 
 ## Create the database and image account
 
-Create a **Free Neon project**, near the chosen Render region. Copy its **pooled PostgreSQL connection string**, retaining `sslmode=require` and other supplied options. Store it privately in Render as `DATABASE_URL`, never in Git or chat. The API defaults to three database connections and 20-second connection/pool timeouts; explicit URL options override these defaults.
+Create a **Free Neon project**, near the chosen Render region. Copy its **pooled PostgreSQL connection string**, retaining `sslmode=require` and other supplied options. Store it privately in Render as `DATABASE_URL`, never in Git or chat. The API defaults to three database connections and 20-second connection/pool timeouts; explicit URL options override these defaults. Production migrations automatically use the matching Neon direct endpoint because Prisma advisory locks cannot work through the pooler. For a non-Neon pooler, set `DIRECT_URL` in Render to the direct database URL.
 
 Use a new empty Neon database. The PostgreSQL migrations create the schema but **do not import existing SQLite records or historical uploads**. Back up local data first. If it contains real orders or inventory, migrate it separately before cutover. Production startup does not seed demo products.
 
