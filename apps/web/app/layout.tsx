@@ -4,11 +4,11 @@ import { Providers } from "@/components/providers";
 import { Shell } from "@/components/shell";
 export const metadata: Metadata = {
   title: {
-    default: "Almost Formal — Vintage Ties",
+    default: "Almost Formal — Ties With Character",
     template: "%s | Almost Formal",
   },
   description:
-    "One-of-one vintage ties and pre-loved finds, with a little history and a lot of character. Almost Formal, Pakistan.",
+    "Distinctive ties and accessories, chosen for sharp details and personal style. Almost Formal, Pakistan.",
 };
 export default function RootLayout({
   children,

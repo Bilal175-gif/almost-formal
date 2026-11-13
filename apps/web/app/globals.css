@@ -472,7 +472,7 @@ textarea {
     0 32%
   );
 }
-.word-old {
+.word-bold {
   left: 4px;
   top: 0;
   background: #b7c8ad;
@@ -486,7 +486,7 @@ textarea {
   transform: rotate(-8deg);
   font-size: 116px;
 }
-.word-new {
+.word-big {
   left: 232px;
   top: 213px;
   background: #f0b64e;
@@ -495,7 +495,7 @@ textarea {
   z-index: 2;
   padding: 2px 17px !important;
 }
-.word-stories {
+.word-moments {
   left: 153px;
   top: 282px;
   background: #e5cda2;
@@ -990,10 +990,10 @@ textarea {
   z-index: 1;
   font-size: 26px;
 }
-.thrift-poster {
+.style-poster {
   position: relative;
-  background: #edb13f;
-  color: #102e25;
+  background: #123f31;
+  color: #f4bd57;
   transform: rotate(-1deg) scale(1.03);
   display: flex;
   flex-direction: column;
@@ -1002,25 +1002,26 @@ textarea {
   padding: 25px 10px;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='t'%3E%3CfeTurbulence baseFrequency='.4' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath filter='url(%23t)' opacity='.15' d='M0 0h100v100H0z'/%3E%3C/svg%3E");
 }
-.thrift-poster > span {
+.style-poster > span {
   font-family: var(--hand);
   font-size: 48px;
   line-height: 1.02;
   transform: rotate(-8deg);
   margin-bottom: 15px;
 }
-.thrift-poster .globe {
+.style-poster .poster-icon {
   width: 125px;
   height: 125px;
   transform: rotate(-10deg);
+  color: #f5ecd9;
 }
-.thrift-poster > .doodle:first-child {
+.style-poster > .doodle:first-child {
   position: absolute;
   top: 20px;
   left: 20px;
   width: 25px;
 }
-.thrift-poster > .doodle:last-child {
+.style-poster > .doodle:last-child {
   position: absolute;
   bottom: 20px;
   right: 20px;
@@ -1034,21 +1035,21 @@ textarea {
   padding: 36px 48px;
   align-items: center;
 }
-.why-thrift {
+.why-style {
   padding: 26px 25px;
   border-radius: 12px;
   align-self: stretch;
 }
-.why-thrift h2 {
+.why-style h2 {
   font-size: 32px;
   margin-bottom: 24px;
 }
-.why-thrift > div {
+.why-style > div {
   display: flex;
   justify-content: space-between;
   gap: 12px;
 }
-.why-thrift a {
+.why-style a {
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -1057,13 +1058,13 @@ textarea {
   font-size: 10px;
   font-weight: 600;
 }
-.why-thrift svg {
+.why-style svg {
   width: 35px;
   height: 40px;
   stroke-width: 1.6;
   color: #123f31;
 }
-.why-thrift a:nth-child(4) svg {
+.why-style a:nth-child(4) svg {
   color: var(--rust);
 }
 .sticky-note {
@@ -1879,7 +1880,7 @@ textarea {
   margin: 20px 0;
   max-width: 90%;
 }
-.old-gold {
+.detail-note {
   position: absolute;
   right: 0;
   top: 235px;
@@ -2487,7 +2488,7 @@ td select {
   .story-copy p {
     font-size: 12px;
   }
-  .thrift-poster > span {
+  .style-poster > span {
     font-size: 39px;
   }
   .bottom-collage {
@@ -2499,17 +2500,17 @@ td select {
     min-height: 175px;
     padding: 25px 14px;
   }
-  .why-thrift {
+  .why-style {
     padding: 20px 16px;
   }
-  .why-thrift > div {
+  .why-style > div {
     gap: 8px;
   }
-  .why-thrift svg {
+  .why-style svg {
     width: 29px;
     height: 34px;
   }
-  .why-thrift a {
+  .why-style a {
     font-size: 9px;
   }
   .social-gallery {
@@ -2568,7 +2569,7 @@ td select {
   .product-detail-copy h1 {
     font-size: 36px;
   }
-  .old-gold {
+  .detail-note {
     font-size: 27px;
     right: -8px;
   }
@@ -2692,10 +2693,10 @@ td select {
     font-size: 21px;
     padding: 13px 15px;
   }
-  .thrift-poster > span {
+  .style-poster > span {
     font-size: 34px;
   }
-  .thrift-poster .globe {
+  .style-poster .poster-icon {
     width: 95px;
     height: 95px;
   }
@@ -2814,7 +2815,7 @@ td select {
     font-size: 11px;
     gap: 8px;
   }
-  .old-gold {
+  .detail-note {
     display: none;
   }
   .product-description {
@@ -3128,7 +3129,7 @@ td select {
   .story-bottom {
     display: none;
   }
-  .thrift-poster {
+  .style-poster {
     display: none;
   }
   .bottom-collage {
@@ -3136,26 +3137,26 @@ td select {
     grid-template-columns: 1fr 117px;
     gap: 14px;
   }
-  .why-thrift {
+  .why-style {
     padding: 20px 14px;
     border: 1px solid var(--line);
   }
-  .why-thrift h2 {
+  .why-style h2 {
     font-size: 27px;
     margin-bottom: 20px;
   }
-  .why-thrift > div {
+  .why-style > div {
     gap: 7px;
     flex-wrap: wrap;
     justify-content: center;
   }
-  .why-thrift a {
+  .why-style a {
     font-size: 8px;
     gap: 5px;
     width: 26%;
     margin-bottom: 7px;
   }
-  .why-thrift svg {
+  .why-style svg {
     width: 28px;
     height: 32px;
   }
@@ -3500,7 +3501,7 @@ td select {
     font-size: 13px;
     gap: 11px;
   }
-  .old-gold {
+  .detail-note {
     display: block;
     top: 225px;
     right: 4px;

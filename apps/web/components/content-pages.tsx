@@ -23,19 +23,19 @@ export const infoPages: Record<
     title: "Just ties. But different.",
     eyebrow: "OUR STORY",
     intro:
-      "Almost Formal started with a simple idea — great style doesn’t need to be brand new. The best pieces often already have a story. We’re here to help them find their next one.",
+      "Almost Formal started with a simple idea: the right tie can change the whole look. We choose pieces with personality, polish and details worth noticing.",
     sections: [
       [
-        "A little history. A lot of character.",
-        "We look for the unexpected: a rich paisley, a beautifully faded stripe, a color you didn’t know you needed. Every find is chosen for the small details that make it its own.",
+        "Details make the difference.",
+        "We look for the unexpected: a rich paisley, a confident stripe, a color you didn’t know you needed. Every piece is chosen for the details that make it stand out.",
       ],
       [
-        "One of one, for a reason.",
-        "These are pre-loved pieces, with their own quirks and histories. We describe the condition honestly, photograph the details and let each tie speak for itself.",
+        "Chosen one by one.",
+        "Every piece gets a close look. We describe its condition honestly, photograph the details and let each tie speak for itself.",
       ],
       [
-        "Same ties. Different stories.",
-        "For the everyday, the almost occasion, or just because. Wear it your way. A second life looks good on you.",
+        "Your style. Your rules.",
+        "For the everyday, the almost occasion, or just because. Wear it your way and make the look yours.",
       ],
     ],
   },
@@ -43,7 +43,7 @@ export const infoPages: Record<
     title: "Keep the story going.",
     eyebrow: "THE CARE GUIDE",
     intro:
-      "A little care goes a long way. Vintage fabrics deserve a gentle touch, especially when their fiber content is unknown.",
+      "A little care goes a long way. Delicate fabrics deserve a gentle touch, especially when their fiber content is unknown.",
     sections: [
       [
         "After wearing",
@@ -55,7 +55,7 @@ export const infoPages: Record<
       ],
       [
         "Creases & storage",
-        "Store away from moisture and direct sunlight. Avoid placing a hot iron directly on vintage fabric. Ask a professional about safe pressing for your particular piece.",
+        "Store away from moisture and direct sunlight. Avoid placing a hot iron directly on delicate fabric. Ask a professional about safe pressing for your particular piece.",
       ],
       [
         "A note on materials",
@@ -92,8 +92,8 @@ export const infoPages: Record<
     draft: true,
     sections: [
       [
-        "Vintage condition",
-        "Pre-loved pieces may show signs of age. Each listing records known condition details and flaws; these need physical verification before real inventory is sold.",
+        "Product condition",
+        "Each listing records known condition details and flaws; these need physical verification before real inventory is sold.",
       ],
       [
         "Something isn’t right?",
@@ -283,7 +283,7 @@ export function FAQ() {
   const questions = [
     [
       "Are the pieces really one of one?",
-      "Our vintage demo catalogue has one unit of each find. Availability is checked again when you place an order. Once a piece sells, its listing is marked as sold out.",
+      "Our demo catalogue has one unit of each find. Availability is checked again when you place an order. Once a piece sells, its listing is marked as sold out.",
     ],
     [
       "How do I know the condition?",
@@ -302,7 +302,7 @@ export function FAQ() {
       "The returns policy is currently a draft awaiting business approval. Please read it and contact the store before making a real purchase.",
     ],
     [
-      "How should I clean my vintage tie?",
+      "How should I care for my tie?",
       "Check the care label and seek professional advice for unverified or delicate fabrics. Our care guide covers gentle storage and handling.",
     ],
   ];

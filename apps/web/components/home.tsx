@@ -6,7 +6,7 @@ import {
   Shirt,
   Instagram,
 } from "lucide-react";
-import { Star, Smile, ArrowDoodle, Globe } from "./doodles";
+import { Star, Smile, ArrowDoodle } from "./doodles";
 import { Featured, MobileDiscovery } from "./products";
 import { SocialFollow } from "./social-follow";
 export function Hero() {
@@ -16,17 +16,17 @@ export function Hero() {
       <div className="hero-content">
         <Star className="hero-star-a" />
         <h1 id="hero-title" className="cutout-title">
-          <span className="word-old">OLD</span>
+          <span className="word-bold">BOLD</span>
           <span className="word-ties">TIES.</span>
-          <span className="word-new">NEW</span>
-          <span className="word-stories">STORIES.</span>
+          <span className="word-big">BIG</span>
+          <span className="word-moments">MOMENTS.</span>
         </h1>
         <div className="hero-note handwriting">
-          Pre-loved
+          Sharp details
           <br />
-          ties with
+          for every
           <br />
-          character.
+          moment.
         </div>
         <Link className="button hero-cta" href="/shop">
           Shop the drop <ArrowRight size={22} />
@@ -73,8 +73,8 @@ export function Benefits() {
       <div>
         <Shirt />
         <span>
-          <strong>PRE-LOVED & SUSTAINABLE</strong>
-          <small>Give great pieces a second life</small>
+          <strong>CURATED WITH CARE</strong>
+          <small>Details worth dressing for</small>
         </span>
       </div>
       <div>
@@ -94,9 +94,9 @@ export function StoryBlock() {
         <div className="photo-frame">
           <img
             src="/images/story.webp"
-            alt="Vintage-inspired newspaper portrait with a red paisley tie"
+            alt="Editorial portrait with a red paisley tie"
           />
-          <span className="handwriting">a past worth wearing.</span>
+          <span className="handwriting">a look worth remembering.</span>
         </div>
         <div className="paper-note story-note handwriting">
           Just
@@ -111,34 +111,34 @@ export function StoryBlock() {
         <Star />
       </div>
       <div className="story-copy">
-        <span className="eyebrow">A SECOND CHANCE AT A FIRST IMPRESSION.</span>
+        <span className="eyebrow">MAKE THE FIRST IMPRESSION YOURS.</span>
         <h2>Our story</h2>
         <p>
-          Almost Formal started with a simple idea — that great style doesn’t
-          need to be brand new. We find, curate and give pre-loved ties a second
-          chapter.
+          Almost Formal is about the finishing touch. We choose ties with
+          personality, polish and just enough unexpected detail to make a
+          look your own.
         </p>
         <Link className="button mustard" href="/our-story">
           Read our story <ArrowRight size={19} />
         </Link>
         <div className="paper-note story-bottom handwriting">
-          SAME TIES.
+          GOOD TIES.
           <br />
-          DIFFERENT
+          GREAT
           <br />
           STORIES.
         </div>
       </div>
-      <div className="thrift-poster">
+      <div className="style-poster">
         <Star />
         <span>
-          THRIFT
+          DRESS
           <br />
-          WEAR
+          YOUR
           <br />
-          REPEAT.
+          WAY.
         </span>
-        <Globe />
+        <Shirt className="poster-icon" strokeWidth={1.2} />
         <Star />
       </div>
     </section>
@@ -157,14 +157,14 @@ export function SocialGallery() {
           <Link
             key={n}
             href="/shop"
-            aria-label={`Explore vintage find ${i + 1}`}
+            aria-label={`Explore tie ${i + 1}`}
           >
             <img
               src={`/images/tie-${n}.webp`}
               alt={
                 [
                   "Classic stripes",
-                  "Vintage bow tie",
+                  "Statement bow tie",
                   "Paisley details",
                   "Heritage pattern",
                   "Navy geometric tie",

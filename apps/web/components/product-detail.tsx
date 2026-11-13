@@ -112,11 +112,11 @@ export function ProductDetail({ slug }: { slug: string }) {
           </div>
         </div>
         <div className="product-detail-copy">
-          <span className="eyebrow">A LITTLE HISTORY. A LOT OF CHARACTER.</span>
+          <span className="eyebrow">THE DETAIL THAT MAKES THE LOOK.</span>
           <h1>{p.title}</h1>
           <p className="product-price">{money(p.price)}</p>
           <div className="tags">
-            <span>Vintage</span>
+            <span>Curated find</span>
             <span>{p.condition} Condition</span>
             {p.era && <span>{p.era}</span>}
           </div>
@@ -156,12 +156,12 @@ export function ProductDetail({ slug }: { slug: string }) {
               </span>
             </div>
           </div>
-          <div className="old-gold">
-            OLD
+          <div className="detail-note">
+            TIE
             <br />
-            BUT
+            IT
             <br />
-            GOLD.
+            RIGHT.
           </div>
           <p className="product-description">{p.description}</p>
           <div className="product-actions">
@@ -217,7 +217,7 @@ export function ProductDetail({ slug }: { slug: string }) {
               <summary>A little care goes a long way</summary>
               <p>
                 Untie gently after wearing, roll or hang loosely, and keep away
-                from direct sunlight. For delicate vintage fabric, consult a
+                from direct sunlight. For delicate fabric, consult a
                 professional cleaner.
               </p>
               <Link href="/care-guide" className="text-link">

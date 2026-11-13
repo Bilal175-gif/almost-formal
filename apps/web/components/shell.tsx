@@ -118,8 +118,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           </div>
           <div className="footer-bottom">
             <span>
-              © {new Date().getFullYear()} Almost Formal. A second life looks
-              good on you.
+              © {new Date().getFullYear()} Almost Formal. Dress your way.
             </span>
             <div>
               <Link href="/privacy-policy">Privacy</Link>

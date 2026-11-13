@@ -101,7 +101,7 @@ export function ProductCard({
         />
         <div>
           <span className="eyebrow">
-            {p.stock === 1 ? "ONE OF ONE" : "VINTAGE FIND"}
+            {p.stock === 1 ? "ONE OF ONE" : "CURATED FIND"}
           </span>
           <h2>{p.title}</h2>
           <h3>{money(p.price)}</h3>
@@ -256,7 +256,7 @@ export function Collection({ wishlist = false }: { wishlist?: boolean }) {
             <p>
               {wishlist
                 ? "The pieces that caught your eye."
-                : "Unique vintage pieces. When it’s gone, it’s gone."}
+                : "Standout ties. When it’s gone, it’s gone."}
             </p>
           </div>
         </div>
