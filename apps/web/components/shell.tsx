@@ -24,7 +24,7 @@ const links = [
 export function Brand() {
   return (
     <Link href="/" className="brand" aria-label="Almost Formal home">
-      <img src="/images/almost-formal-logo-2026.webp" alt="Almost Formal" width={80} height={72} />
+      <img src="/images/almost-formal-round-logo.webp" alt="Almost Formal" width={80} height={80} />
     </Link>
   );
 }
