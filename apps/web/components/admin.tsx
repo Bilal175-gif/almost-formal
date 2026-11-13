@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, LogOut, Upload, Trash2, Save } from "lucide-react";
-import { api, type Settings } from "@/lib/api";
+import { api, ApiError, type Settings } from "@/lib/api";
 import { useStore } from "@/lib/store";
 import { type Product, money } from "../../../packages/shared";
 import type { Order } from "./checkout";
@@ -61,6 +61,7 @@ export function Admin() {
   const [tab, setTab] = useState("Overview");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
   const [editor, setEditor] = useState<Editable | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
   const session = useQuery({
@@ -137,6 +138,35 @@ export function Admin() {
     } finally {
       setBusy(false);
     }
+  }
+  async function removeProduct(product: Product) {
+    if (!window.confirm(`Remove ${product.title} from your catalogue?`)) return;
+    setBusy(true);
+    setError("");
+    try {
+      await api(`/admin/products/${product.id}`, { method: "DELETE", headers });
+      notify("Product deleted.");
+    } catch (error) {
+      if (!(error instanceof ApiError) || error.status !== 409) {
+        setError((error as Error).message);
+        setBusy(false);
+        return;
+      }
+      try {
+        await api(`/admin/products/${product.id}`, {
+          method: "PATCH",
+          headers,
+          body: JSON.stringify({ archived: true }),
+        });
+        notify("Removed from shop. Order history is preserved.");
+      } catch (archiveError) {
+        setError((archiveError as Error).message);
+        setBusy(false);
+        return;
+      }
+    }
+    await cache.invalidateQueries();
+    setBusy(false);
   }
   if (session.isPending)
     return (
@@ -300,6 +330,14 @@ export function Admin() {
               Add product
             </button>
           </div>
+          <label className="subtle">
+            <input
+              type="checkbox"
+              checked={showArchived}
+              onChange={(event) => setShowArchived(event.target.checked)}
+            />{" "}
+            Show archived products
+          </label>
           {products.isPending ? (
             <p>Loading products…</p>
           ) : (
@@ -316,7 +354,7 @@ export function Admin() {
                   </tr>
                 </thead>
                 <tbody>
-                  {products.data?.map((p) => (
+                  {products.data?.filter((p) => showArchived || !p.archived).map((p) => (
                     <tr key={p.id}>
                       <td>
                         <img src={p.images[0]?.url} alt={p.title} />
@@ -366,14 +404,7 @@ export function Admin() {
                         <button
                           className="text-link"
                           disabled={busy}
-                          onClick={() => {
-                            if (
-                              window.confirm(
-                                `Permanently delete ${p.title}? Products with order history can only be archived.`,
-                              )
-                            )
-                              void mutate(`/admin/products/${p.id}`, "DELETE");
-                          }}
+                          onClick={() => void removeProduct(p)}
                         >
                           Delete
                         </button>
