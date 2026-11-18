@@ -1,0 +1,31 @@
+name: Keep free API ready
+
+on:
+  schedule:
+    # Render Free sleeps after 15 idle minutes. Avoid GitHub's busy :00 minute.
+    - cron: "4,14,24,34,44,54 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: keep-api-awake
+  cancel-in-progress: false
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Wake and check Render API
+        run: |
+          response=$(curl --fail --silent --show-error --max-time 120 \
+            --header 'Accept: application/json' \
+            'https://almost-formal-5qy4.onrender.com/api/health')
+          node -e '
+            const body = JSON.parse(process.argv[1]);
+            if (body.service !== "almost-formal-api" || body.ok !== true) {
+              throw new Error("Unexpected Render API health response");
+            }
+          ' "$response"

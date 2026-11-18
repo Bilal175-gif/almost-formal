@@ -1,0 +1,130 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import express from "express";
+import request from "supertest";
+import { publicCache } from "../apps/api/src/public-cache.js";
+import {
+  databaseUrl,
+  initialAdminCredentials,
+  startupErrorMessage,
+  validateHostedEnvironment,
+} from "../apps/api/src/runtime.js";
+import { resendTransport } from "../apps/api/src/email-delivery.js";
+import { migrationDatabaseUrl } from "../scripts/migration-database-url.mjs";
+
+test("production migrations bypass Neon pooler without changing runtime URL", () => {
+  const pooled = "postgresql://user:secret@ep-example-pooler.c-4.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&pgbouncer=true";
+  const direct = migrationDatabaseUrl(pooled);
+  assert.equal(new URL(direct).hostname, "ep-example.c-4.ap-southeast-1.aws.neon.tech");
+  assert.equal(new URL(direct).searchParams.get("sslmode"), "require");
+  assert.equal(new URL(direct).searchParams.has("pgbouncer"), false);
+  assert.match(pooled, /-pooler/);
+  assert.equal(
+    migrationDatabaseUrl("postgresql://u:p@localhost:5432/test"),
+    "postgresql://u:p@localhost:5432/test",
+  );
+  assert.throws(
+    () => migrationDatabaseUrl(pooled, pooled),
+    /DIRECT_URL must use the Neon direct endpoint/,
+  );
+});
+
+test("Neon connection defaults are bounded and preserve user overrides", () => {
+  const result = new URL(
+    databaseUrl(
+      "postgresql://user:password@example.test/store?sslmode=require",
+    ),
+  );
+  assert.equal(result.searchParams.get("connection_limit"), "3");
+  assert.equal(result.searchParams.get("connect_timeout"), "20");
+  assert.equal(result.searchParams.get("sslmode"), "require");
+  assert.equal(
+    new URL(
+      databaseUrl("postgresql://u:p@example.test/db?connection_limit=1"),
+    ).searchParams.get("connection_limit"),
+    "1",
+  );
+  assert.equal(databaseUrl("file:./dev.db"), "file:./dev.db");
+});
+
+test("hosted startup identifies invalid fields without printing secrets", () => {
+  const env = {
+    DATABASE_URL: "postgresql://user:private-password@example.test/db",
+    APP_ORIGIN: "https://frontend.example.com",
+  };
+  assert.throws(
+    () => validateHostedEnvironment(env),
+    /CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET/,
+  );
+  assert.throws(
+    () => validateHostedEnvironment({ ...env, APP_ORIGIN: "invalid" }),
+    /APP_ORIGIN/,
+  );
+  assert.throws(
+    () =>
+      initialAdminCredentials({
+        ADMIN_EMAIL: "invalid",
+        ADMIN_PASSWORD: "private",
+      }),
+    (error: unknown) => {
+      const message = startupErrorMessage(error, "admin creation");
+      assert.match(message, /ADMIN_EMAIL, ADMIN_PASSWORD/);
+      assert.ok(!message.includes("private"));
+      return true;
+    },
+  );
+  const message = startupErrorMessage(
+    Object.assign(new Error(env.DATABASE_URL), { code: "P1001" }),
+    "store initialization",
+  );
+  assert.match(message, /store initialization \(P1001\)/);
+  assert.ok(!message.includes("private-password"));
+});
+
+test("public cache reduces reads, invalidates on checkout, and excludes private/health routes", async () => {
+  const app = express();
+  app.use(publicCache(30));
+  let reads = 0;
+  let privateReads = 0;
+  app.get("/api/products", (_req, res) => res.json({ reads: ++reads }));
+  app.get("/api/admin/orders", (_req, res) =>
+    res.json({ reads: ++privateReads }),
+  );
+  app.get("/api/health", (_req, res) => res.json({ reads: ++privateReads }));
+  app.post("/api/orders", (_req, res) => res.sendStatus(201));
+  assert.equal((await request(app).get("/api/products")).body.reads, 1);
+  assert.equal((await request(app).get("/api/products")).body.reads, 1);
+  await request(app).post("/api/orders");
+  assert.equal((await request(app).get("/api/products")).body.reads, 2);
+  await request(app).get("/api/admin/orders");
+  await request(app).get("/api/admin/orders");
+  await request(app).get("/api/health");
+  await request(app).get("/api/health");
+  assert.equal(privateReads, 4);
+});
+
+test("HTTPS email serializes contact reply-to and reports delivery failures", async () => {
+  const original = globalThis.fetch;
+  const calls: RequestInit[] = [];
+  globalThis.fetch = async (input, init) => {
+    assert.equal(input, "https://api.resend.com/emails");
+    calls.push(init!);
+    return new Response("{}", { status: calls.length === 1 ? 200 : 429 });
+  };
+  try {
+    const mail = resendTransport("test-key");
+    const message = {
+      from: "store@example.test",
+      to: "owner@example.test",
+      subject: "Contact",
+      text: "Hello",
+      replyTo: "customer@example.test",
+    };
+    await mail.sendMail(message);
+    assert.deepEqual(JSON.parse(calls[0].body as string).to, [message.to]);
+    assert.equal(JSON.parse(calls[0].body as string).reply_to, message.replyTo);
+    await assert.rejects(() => mail.sendMail(message), /429/);
+  } finally {
+    globalThis.fetch = original;
+  }
+});

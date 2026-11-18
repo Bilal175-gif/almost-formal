@@ -1,0 +1,56 @@
+name: Backend PostgreSQL checks
+on:
+  push:
+    branches: [main]
+    paths:
+      [
+        "apps/api/**",
+        "packages/shared/**",
+        "scripts/**",
+        "tests/**",
+        "package.json",
+        "render.yaml",
+        ".github/workflows/backend-postgres.yml",
+      ]
+  pull_request:
+    paths:
+      [
+        "apps/api/**",
+        "packages/shared/**",
+        "scripts/**",
+        "tests/**",
+        "package.json",
+        "render.yaml",
+        ".github/workflows/backend-postgres.yml",
+      ]
+permissions:
+  contents: read
+jobs:
+  postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: almost_formal_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/almost_formal_test
+      TEST_DATABASE_URL: postgresql://test:test@localhost:5432/almost_formal_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run build:render
+      - run: npm run test:postgres
+      - run: npm test
