@@ -10,5 +10,6 @@
     "skipLibCheck": true,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*.ts", "../../packages/shared/**/*.ts"]
+  "include": ["src/**/*.ts", "../../packages/shared/**/*.ts"],
+  "exclude": ["src/express-legacy/**/*.ts"]
 }

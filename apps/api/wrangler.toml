@@ -1,0 +1,52 @@
+# Almost Formal API Worker (Hono + D1 + Cloudinary)
+#
+# Local dev:  npm run dev -w @almost-formal/api   (wrangler dev --local, :4000)
+# Deploy:     DO NOT deploy until CUTOVER.md is followed step by step.
+#             `wrangler deploy` (production env below).
+#
+# D1 database "almost-formal-db" (id below) was claimed created
+# 2026-11-09 with 0 tables. That was never verified from this machine:
+# treat the remote D1 state as UNVERIFIED until `wrangler d1 info
+# almost-formal-db` and a migration run confirm it (CUTOVER.md step 2).
+# Apply migrations remotely with:
+#   wrangler d1 execute almost-formal-db --remote --file=<migration.sql>
+#
+# APP_ORIGIN must be the exact public origin of the web app
+# (almostformal.shop, the Cloudflare frontend Worker custom domain).
+#
+# Images are Cloudinary only — there is NO R2 bucket and no local
+# disk. CLOUDINARY_CLOUD_NAME is public (dmwgexmef, same as the
+# frontend's NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME). The API key/secret
+# are Worker SECRETS, never in this file:
+#   wrangler secret put CLOUDINARY_API_KEY
+#   wrangler secret put CLOUDINARY_API_SECRET
+#   wrangler secret put RESEND_API_KEY        # optional, email only
+# Without the Cloudinary secrets, /api/admin/uploads answers 503 and
+# products can only use /images/* URLs.
+
+name = "almost-formal-api"
+main = "src/worker.ts"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+APP_ORIGIN = "https://almostformal.shop"
+CLOUDINARY_CLOUD_NAME = "dmwgexmef"
+EMAIL_FROM = ""
+STORE_NOTIFICATION_EMAIL = ""
+PUBLIC_CACHE_TTL_SECONDS = "30"
+
+[dev]
+port = 4000
+
+[[d1_databases]]
+binding = "DB"
+database_name = "almost-formal-db"
+database_id = "24bd6c7d-0cf3-408d-bd98-516d96018170"
+
+[env.staging]
+name = "almost-formal-api-staging"
+vars = { APP_ORIGIN = "https://almost-formal-web-staging.workers.dev" }
+
+[env.production]
+name = "almost-formal-api"

@@ -1,0 +1,43 @@
+name: Backend D1 checks
+# Replaces the old backend-postgres.yml: the API is now a Cloudflare
+# Worker (Hono + D1). No PostgreSQL service is needed in CI — the
+# suite runs the Hono app in-process against a local miniflare D1.
+on:
+  push:
+    branches: [main]
+    paths:
+      [
+        "apps/api/**",
+        "packages/shared/**",
+        "scripts/**",
+        "tests/**",
+        "package.json",
+        ".github/workflows/backend-d1.yml",
+      ]
+  pull_request:
+    paths:
+      [
+        "apps/api/**",
+        "packages/shared/**",
+        "scripts/**",
+        "tests/**",
+        "package.json",
+        ".github/workflows/backend-d1.yml",
+      ]
+permissions:
+  contents: read
+jobs:
+  d1:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run db:generate
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run build -w @almost-formal/api
+      - run: npm test
