@@ -1,0 +1,35 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "almost-formal-api-staging",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-12",
+  "env": {
+    "staging": {
+      "name": "almost-formal-api-staging",
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "almost-formal-staging",
+          "database_id": "e97a7f20-d072-41a1-8231-77c91cc807a8",
+          "migrations_dir": "migrations"
+        }
+      ]
+    },
+    "production": {
+      "name": "almost-formal-api-production",
+      "vars": {
+        "APP_ORIGIN": "https://almostformal.shop",
+        "ALLOWED_ORIGINS": "https://almostformal.shop",
+        "EMAIL_FROM": "Almost Formal <orders@almostformal.shop>"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "almost-formal-db",
+          "database_id": "24bd6c7d-0cf3-408d-bd98-516d96018170",
+          "migrations_dir": "migrations"
+        }
+      ]
+    }
+  }
+}

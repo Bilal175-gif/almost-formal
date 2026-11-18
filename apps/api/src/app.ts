@@ -34,6 +34,7 @@ import {
   uploadProductImage,
 } from "./cloudinary.js";
 export const app = express();
+export default app;
 app.disable("x-powered-by");
 // Render's final proxy hop. Never trust arbitrary X-Forwarded-For by default.
 const proxyHops = Number(process.env.TRUST_PROXY_HOPS || 0);
@@ -699,7 +700,7 @@ app.use(
   express.static(uploads, { dotfiles: "deny", immutable: true, maxAge: "1y" }),
 );
 app.post("/api/admin/uploads", upload.single("image"), async (req, res) => {
-  if (process.env.STORAGE_MODE === "cloudinary" && !cloudinaryConfigured())
+  if ((process.env.STORAGE_MODE === "cloudinary" || process.env.VERCEL) && !cloudinaryConfigured())
     throw new HttpError(503, "Configure Cloudinary before uploading product images.");
   if (!req.file)
     throw new HttpError(400, "Choose a JPEG, PNG or WebP image under 5 MB.");

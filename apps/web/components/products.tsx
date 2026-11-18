@@ -132,7 +132,7 @@ export function ProductCard({
 }
 export function ProductSkeletons() {
   return (
-    <div className="product-grid">
+    <div className="product-grid" role="status" aria-label="Loading products">
       {[1, 2, 3, 4].map((n) => (
         <div key={n} className="product-skeleton">
           <div />

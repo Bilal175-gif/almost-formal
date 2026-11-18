@@ -16,6 +16,9 @@ const unavailable =
 export function shouldRetryApiQuery(failureCount: number, error: Error) {
   if (error instanceof ApiError) {
     if (error.status === 429) return false;
+    // Render can briefly return 502/503 while the free API starts.
+    if (error.status === 502 || error.status === 503)
+      return failureCount < 5;
     return error.status >= 500 && failureCount < 5;
   }
   return failureCount < 5;
@@ -31,15 +34,27 @@ export async function api<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const response = await fetch(`/api${path}`, {
-    ...options,
-    headers: {
-      ...(options.body instanceof FormData
-        ? {}
-        : { "Content-Type": "application/json" }),
-      ...options.headers,
-    },
-  });
+  let response: Response;
+  const readTimeout = (options.method || "GET").toUpperCase() === "GET"
+    ? AbortSignal.timeout(25000)
+    : undefined;
+  try {
+    response = await fetch(`/api${path}`, {
+      ...options,
+      signal: options.signal && readTimeout
+        ? AbortSignal.any([options.signal, readTimeout])
+        : options.signal || readTimeout,
+      headers: {
+        ...(options.body instanceof FormData
+          ? {}
+          : { "Content-Type": "application/json" }),
+        ...options.headers,
+      },
+    });
+  } catch (error) {
+    if (options.signal?.aborted) throw error;
+    throw new ApiError(unavailable, 503);
+  }
   if (response.status === 204) return undefined as T;
   // Hosting gateways can return an HTML error/cold-start page, including 200s.
   // Do not expose a JSON parser error (or gateway HTML) in the storefront.

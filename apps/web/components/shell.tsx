@@ -159,25 +159,21 @@ export function Shell({ children }: { children: React.ReactNode }) {
         label="navigation"
         className="menu-drawer"
       >
-        <Smile />
-        <nav>
+        <p className="menu-label">MENU</p>
+        <nav aria-label="Mobile navigation">
           {[...links.slice(0, 2), ["Care guide", "/care-guide"], links[2]].map(
             ([label, href]) => (
-              <Link onClick={() => s.setMenu(false)} key={href} href={href}>
-                <span>÷</span>
+              <Link
+                className={pathname === href ? "active" : ""}
+                onClick={() => s.setMenu(false)}
+                key={href}
+                href={href}
+              >
                 {label}
-                <Star />
               </Link>
             ),
           )}
         </nav>
-        <div className="sticky-note">
-          GOOD TIES
-          <br />
-          HAPPIER
-          <br />
-          PEOPLE <Heart />
-        </div>
         <div className="menu-social">
           <a href="https://www.instagram.com/almost.formal/" target="_blank" rel="noreferrer">
             Instagram @almost.formal <ArrowRight size={18} />
