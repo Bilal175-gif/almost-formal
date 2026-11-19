@@ -32,6 +32,7 @@ jobs:
           test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo 'Missing CLOUDFLARE_ACCOUNT_ID secret'; exit 1; }
           test -n "$CLOUDFLARE_API_TOKEN" || { echo 'Missing CLOUDFLARE_API_TOKEN secret'; exit 1; }
       - run: npm ci
+      - run: npm run db:generate
       - name: Check production API
         run: |
           response=$(curl --fail --silent --show-error --max-time 120 \
