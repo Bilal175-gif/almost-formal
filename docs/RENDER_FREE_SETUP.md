@@ -48,6 +48,7 @@ Use the exact `APP_ORIGIN`, with no trailing slash. Optional `ALLOWED_ORIGINS` a
 The build generates the PostgreSQL client and compiles only the API. Startup deploys migrations, inserts missing settings/categories, creates the first admin only if none exists, and starts the server. Existing settings/stock/passwords are not reset. After successful initial startup, remove `ADMIN_PASSWORD` from Render. Later password resets use `admin:create`.
 
 Catalogue/settings reads have a bounded 30-second process cache (100 entries/4 MB). Writes invalidate it. Admin, orders, tracking, health and checkout are excluded. Checkout always checks current database stock and prices. Atomic PostgreSQL status transitions prevent duplicate stock restoration during concurrent cancellation. Browser/CDN API caching stays `private, no-store`.
+The 30-second cache is also the API default; set `PUBLIC_CACHE_TTL_SECONDS=0` to disable it.
 
 Render/Neon are allowed to sleep. `/api/health` does not query or wake Neon. Do not add recurring uptime pings: they consume quotas. The first request after inactivity may be slow.
 

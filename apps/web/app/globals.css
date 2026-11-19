@@ -1460,6 +1460,9 @@ textarea {
     background-position: -200% 0;
   }
 }
+dialog:not([open]) {
+  display: none !important;
+}
 .modal {
   border: 0;
   color: var(--ink);
@@ -1617,10 +1620,13 @@ textarea {
   margin-top: 8px;
 }
 .menu-drawer {
-  display: flex;
+  display: none;
   flex-direction: column;
   width: 380px;
   padding: 92px 36px 32px;
+}
+.menu-drawer[open] {
+  display: flex;
 }
 .menu-label {
   color: var(--forest);

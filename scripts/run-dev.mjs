@@ -14,6 +14,13 @@ const isAlmostFormalApi = async (port) => {
   }
 };
 
+const findRunningAlmostFormalApi = async (startPort = 4100, maxAttempts = 10) => {
+  for (let port = startPort; port < startPort + maxAttempts; port += 1) {
+    if (await isAlmostFormalApi(port)) return port;
+  }
+  return null;
+};
+
 const requestedMode = process.argv[2] || 'dev';
 const mode = requestedMode === 'start' ? 'start' : 'dev';
 const service = requestedMode === 'dev:api' ? 'api' : requestedMode === 'dev:web' ? 'web' : null;
@@ -21,15 +28,23 @@ const requestedPort = Number(process.env.WEB_PORT || 3000);
 const webPort = service === 'api' ? requestedPort : await getAvailablePort(requestedPort);
 
 const requestedApiPort = Number(process.env.PORT || 4100);
-const apiPort = service ? requestedApiPort : await getAvailablePort(requestedApiPort);
+let apiPort;
 
-if (service && await isPortTaken(apiPort)) {
-  if (service === 'api') {
+if (service === 'web') {
+  const runningPort = await findRunningAlmostFormalApi(requestedApiPort);
+  apiPort = runningPort || requestedApiPort;
+  if (!runningPort && (await isPortTaken(apiPort))) {
+    if (!(await isAlmostFormalApi(apiPort))) {
+      throw new Error(`Port ${apiPort} belongs to another service. Set PORT to a free port in .env for both terminals, then restart both commands.`);
+    }
+  }
+} else if (service === 'api') {
+  apiPort = requestedApiPort;
+  if (await isPortTaken(apiPort)) {
     throw new Error(`Port ${apiPort} is already in use. Set PORT to a free port in .env for both terminals.`);
   }
-  if (!(await isAlmostFormalApi(apiPort))) {
-    throw new Error(`Port ${apiPort} belongs to another service. Set PORT to a free port in .env for both terminals, then restart both commands.`);
-  }
+} else {
+  apiPort = await getAvailablePort(requestedApiPort);
 }
 
 process.env.WEB_PORT = String(webPort);

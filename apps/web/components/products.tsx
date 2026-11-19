@@ -27,9 +27,11 @@ type ProductFilters = {
 export function ProductCard({
   product: p,
   index = 0,
+  eagerImage = index < 4,
 }: {
   product: Product;
   index?: number;
+  eagerImage?: boolean;
 }) {
   const s = useStore();
   const [quick, setQuick] = useState(false);
@@ -47,7 +49,7 @@ export function ProductCard({
               srcSet={productImageSrcSet(imageUrl, [320, 640, 960])}
               sizes="(max-width: 600px) 50vw, (max-width: 1000px) 33vw, 25vw"
               alt={p.images[0]?.alt || p.title}
-              loading={index < 4 ? "eager" : "lazy"}
+              loading={eagerImage ? "eager" : "lazy"}
               width={384}
               height={512}
             />
@@ -169,7 +171,12 @@ export function Featured() {
       ) : (
         <div className="product-grid">
           {data?.products.map((p, i) => (
-            <ProductCard key={p.id} product={p} index={i} />
+            <ProductCard
+              key={p.id}
+              product={p}
+              index={i}
+              eagerImage={false}
+            />
           ))}
         </div>
       )}

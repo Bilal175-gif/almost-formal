@@ -127,7 +127,15 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 const images = { images: { orderBy: { position: "asc" as const } } };
-app.use(publicCache(Math.min(60, Math.max(0, Number(process.env.PUBLIC_CACHE_TTL_SECONDS) || 0))));
+const publicCacheTtl = Number(process.env.PUBLIC_CACHE_TTL_SECONDS ?? 30);
+app.use(
+  publicCache(
+    Math.min(
+      60,
+      Math.max(0, Number.isFinite(publicCacheTtl) ? publicCacheTtl : 0),
+    ),
+  ),
+);
 app.get("/api/health", (_req, res) =>
   res.json({ ok: true, service: "almost-formal-api" }),
 );
