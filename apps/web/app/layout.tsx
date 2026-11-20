@@ -3,12 +3,14 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Shell } from "@/components/shell";
 export const metadata: Metadata = {
+  metadataBase: new URL("https://almostformal.shop"),
   title: {
-    default: "Almost Formal — Ties With Character",
+    default: "Almost Formal | Curated Neckties in Pakistan",
     template: "%s | Almost Formal",
   },
   description:
-    "Distinctive ties and accessories, chosen for sharp details and personal style. Almost Formal, Pakistan.",
+    "Shop curated, one-of-one patterned neckties in Pakistan. Explore the current collection and find a tie with character.",
+  alternates: { canonical: "/" },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },

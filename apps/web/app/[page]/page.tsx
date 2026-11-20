@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { InfoPage, Contact, FAQ, Tracking } from "@/components/content-pages";
+import type { Metadata } from "next";
 const slugs = [
   "our-story",
   "care-guide",
@@ -20,12 +21,19 @@ export async function generateMetadata({
   params: Promise<{ page: string }>;
 }) {
   const { page } = await params;
-  return {
-    title: page
-      .split("-")
-      .map((w) => w[0].toUpperCase() + w.slice(1))
-      .join(" "),
+  const titles: Record<string, string> = {
+    "care-guide": "How to Care for a Necktie",
+    faq: "Necktie FAQs",
+    "our-story": "Our Story",
+    contact: "Contact Almost Formal",
   };
+  const title = titles[page] || page.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+  return {
+    title,
+    description: page === "care-guide" ? "Learn how to untie, store and clean a necktie, including delicate pieces with unverified fabric." : page === "faq" ? "Answers about Almost Formal ties, condition, care, payment and order tracking." : undefined,
+    alternates: { canonical: `/${page}` },
+    robots: { index: !["order-tracking", "privacy-policy", "terms-and-conditions", "shipping-policy", "returns-policy"].includes(page), follow: true },
+  } satisfies Metadata;
 }
 export default async function ContentRoute({
   params,

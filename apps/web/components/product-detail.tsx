@@ -20,7 +20,7 @@ import { type Product, money } from "../../../packages/shared";
 import { ErrorBox } from "./ui";
 import { ArrowDoodle } from "./doodles";
 import { ProductCard, ProductSkeletons } from "./products";
-export function ProductDetail({ slug }: { slug: string }) {
+export function ProductDetail({ slug, initial }: { slug: string; initial: Product }) {
   const s = useStore();
   const router = useRouter();
   const [selected, setSelected] = useState(0);
@@ -32,6 +32,7 @@ export function ProductDetail({ slug }: { slug: string }) {
   } = useQuery({
     queryKey: ["product", slug],
     queryFn: () => api<Product>(`/products/${slug}`),
+    initialData: initial,
   });
   const { data: related } = useQuery({
     queryKey: ["related"],

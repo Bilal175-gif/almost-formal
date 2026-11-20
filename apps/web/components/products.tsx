@@ -201,13 +201,13 @@ export function MobileDiscovery() {
     </div>
   );
 }
-export function Collection({ wishlist = false }: { wishlist?: boolean }) {
+export function Collection({ wishlist = false, initial, initialPage = 1 }: { wishlist?: boolean; initial?: ProductList; initialPage?: number }) {
   const params = useSearchParams();
   const s = useStore();
   const [search, setSearch] = useState(params.get("search") || "");
   const [debounced, setDebounced] = useState(search);
   const [sort, setSort] = useState("newest");
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(initialPage);
   const [category, setCategory] = useState("");
   const [pattern, setPattern] = useState("");
   const [color, setColor] = useState("");
@@ -243,6 +243,7 @@ export function Collection({ wishlist = false }: { wishlist?: boolean }) {
   const { data, isPending, error, refetch } = useQuery({
     queryKey: ["products", query.toString()],
     queryFn: () => api<ProductList>(`/products?${query}`),
+    initialData: !wishlist && page === initialPage && !debounced && sort === "newest" && !category && !pattern && !color && !condition && !maxPrice && inStock ? initial : undefined,
   });
   const products = wishlist
     ? data?.products.filter((p) => s.wishlist.includes(p.id))
@@ -257,7 +258,7 @@ export function Collection({ wishlist = false }: { wishlist?: boolean }) {
             <h1>
               {wishlist
                 ? "Saved for your next story."
-                : "Good finds, gone fast."}
+                : "Shop Patterned Neckties"}
               <Star />
             </h1>
             <p>
@@ -317,7 +318,7 @@ export function Collection({ wishlist = false }: { wishlist?: boolean }) {
                     setPage(1);
                   }}
                 >
-                  <option value="">All {label.toLowerCase()}s</option>
+                  <option value="">All {label === "Category" ? "categories" : `${label.toLowerCase()}s`}</option>
                   {options?.map((option) => (
                     <option key={option} value={option}>
                       {option}
@@ -397,21 +398,11 @@ export function Collection({ wishlist = false }: { wishlist?: boolean }) {
               </span>
               {data && data.pages > 1 && (
                 <div>
-                  <button
-                    disabled={page === 1}
-                    onClick={() => setPage(page - 1)}
-                  >
-                    Previous
-                  </button>
+                  <Link href={`/shop?page=${Math.max(1, page - 1)}`} onClick={() => setPage(Math.max(1, page - 1))} aria-disabled={page === 1}>Previous</Link>
                   <span>
                     {page} / {data.pages}
                   </span>
-                  <button
-                    disabled={page === data.pages}
-                    onClick={() => setPage(page + 1)}
-                  >
-                    Next
-                  </button>
+                  <Link href={`/shop?page=${Math.min(data.pages, page + 1)}`} onClick={() => setPage(Math.min(data.pages, page + 1))} aria-disabled={page === data.pages}>Next</Link>
                 </div>
               )}
             </div>
