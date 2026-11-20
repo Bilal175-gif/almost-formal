@@ -1406,15 +1406,47 @@ textarea {
 .pagination {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
   align-items: center;
-  margin-top: 28px;
-  font-size: 11px;
-  opacity: 0.7;
+  margin-top: 36px;
+  font-size: 14px;
+  color: var(--ink);
+}
+.pagination > span {
+  font-weight: 500;
+  opacity: 0.8;
 }
 .pagination > div {
   display: flex;
-  gap: 13px;
+  gap: 12px;
+  align-items: center;
+}
+.pagination button {
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  background-color: var(--ink);
+  color: var(--cream);
+  border: 1px solid var(--ink);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.pagination button:hover:not(:disabled) {
+  background-color: transparent;
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+.pagination button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  background-color: rgba(32, 30, 25, 0.2);
+  color: var(--ink);
+  border-color: transparent;
 }
 .active-filters {
   display: flex;
