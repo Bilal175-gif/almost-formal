@@ -291,11 +291,11 @@ export function Collection({ wishlist = false, initial, initialPage = 1 }: { wis
               </span>
               {data && data.pages > 1 && (
                 <div>
-                  <Link href={`/shop?page=${Math.max(1, page - 1)}`} onClick={() => setPage(Math.max(1, page - 1))} aria-disabled={page === 1}>Previous</Link>
+                  {page === 1 ? <span className="page-button disabled">Previous</span> : <Link className="page-button" href={`/shop?page=${page - 1}`} onClick={() => setPage(page - 1)}>Previous</Link>}
                   <span>
                     {page} / {data.pages}
                   </span>
-                  <Link href={`/shop?page=${Math.min(data.pages, page + 1)}`} onClick={() => setPage(Math.min(data.pages, page + 1))} aria-disabled={page === data.pages}>Next</Link>
+                  {page === data.pages ? <span className="page-button disabled">Next</span> : <Link className="page-button" href={`/shop?page=${page + 1}`} onClick={() => setPage(page + 1)}>Next</Link>}
                 </div>
               )}
             </div>

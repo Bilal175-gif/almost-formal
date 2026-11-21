@@ -743,7 +743,7 @@ textarea {
   border-radius: 9px;
   overflow: hidden;
   background: #f9f1de;
-  transition: transform 0.25s;
+  transition: transform 0.12s ease-out;
 }
 .product-card:hover {
   transform: translateY(-4px);
@@ -763,7 +763,7 @@ textarea {
 }
 .product-image img {
   height: 100%;
-  transition: transform 0.45s;
+  transition: transform 0.14s ease-out;
 }
 .product-card:hover .product-image img {
   transform: scale(1.035);
@@ -833,7 +833,7 @@ textarea {
   padding: 7px 14px;
   border-radius: 6px;
   font-size: 11px;
-  transition: 0.2s;
+  transition: opacity 0.1s ease-out, transform 0.1s ease-out;
 }
 .product-card:hover .quick-view,
 .quick-view:focus-visible {
@@ -1421,9 +1421,11 @@ textarea {
   gap: 12px;
   align-items: center;
 }
-.pagination button {
-  padding: 8px 18px;
-  font-size: 13px;
+.pagination .page-button {
+  min-width: 104px;
+  min-height: 46px;
+  padding: 10px 20px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: 0.03em;
   background-color: var(--ink);
@@ -1436,12 +1438,12 @@ textarea {
   align-items: center;
   justify-content: center;
 }
-.pagination button:hover:not(:disabled) {
+.pagination a.page-button:hover {
   background-color: transparent;
   color: var(--ink);
   transform: translateY(-1px);
 }
-.pagination button:disabled {
+.pagination .page-button.disabled {
   opacity: 0.35;
   cursor: not-allowed;
   background-color: rgba(32, 30, 25, 0.2);
@@ -3373,7 +3375,9 @@ td select {
     padding: 10px 9px;
   }
   .pagination {
-    font-size: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 13px;
   }
   .cart-drawer,
   .menu-drawer,
