@@ -2,6 +2,18 @@ import { argon2Verify } from "hash-wasm";
 import { all, ApiError, first, json, run, sha256, type D1Database } from "./db";
 
 export async function verifyPassword(password: string, stored: string) {
+  const pbkdf2 = /^pbkdf2-sha256\$(\d+)\$([a-f0-9]{32})\$([a-f0-9]{64})$/.exec(stored);
+  if (pbkdf2) {
+    const iterations = Number(pbkdf2[1]);
+    if (iterations !== 100_000) return false;
+    const salt = Uint8Array.from(pbkdf2[2].match(/../g)!, (byte) => parseInt(byte, 16));
+    const expected = Uint8Array.from(pbkdf2[3].match(/../g)!, (byte) => parseInt(byte, 16));
+    const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
+    const actual = new Uint8Array(await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt, iterations }, key, 256));
+    let difference = 0;
+    for (let i = 0; i < expected.length; i++) difference |= actual[i] ^ expected[i];
+    return difference === 0;
+  }
   if (stored.length > 256) return false;
   const argon2 = /^\$argon2id\$v=19\$m=(\d+),t=(\d+),p=(\d+)\$([A-Za-z0-9+/]+={0,2})\$([A-Za-z0-9+/]+={0,2})$/.exec(stored);
   if (!argon2) return false;

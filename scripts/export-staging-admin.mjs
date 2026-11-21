@@ -17,8 +17,8 @@ try {
   if (admins.length !== 1) throw new Error("Expected exactly one source administrator.");
   const { id, role, user } = admins[0];
   const salt = randomBytes(16);
-  const hash = pbkdf2Sync(password, salt, 210_000, 32, "sha256");
-  const passwordHash = `pbkdf2-sha256$210000$${salt.toString("hex")}$${hash.toString("hex")}`;
+  const hash = pbkdf2Sync(password, salt, 100_000, 32, "sha256");
+  const passwordHash = `pbkdf2-sha256$100000$${salt.toString("hex")}$${hash.toString("hex")}`;
   const sql = [
     "-- Staging administrator only. No production password hash or sessions.",
     `INSERT INTO "User" ("id", "email", "name", "passwordHash", "createdAt") VALUES (${quote(user.id)}, ${quote(user.email)}, ${quote(user.name)}, ${quote(passwordHash)}, ${quote(user.createdAt.toISOString())}) ON CONFLICT("id") DO UPDATE SET "email" = excluded."email", "name" = excluded."name", "passwordHash" = excluded."passwordHash";`,
