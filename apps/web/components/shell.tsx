@@ -16,6 +16,7 @@ import { api } from "@/lib/api";
 import { Star, Smile } from "./doodles";
 import { Modal, Toast } from "./ui";
 import { CartContents } from "./cart";
+import { NavigationLoading } from "./navigation-loading";
 const links = [
   ["Shop", "/shop"],
   ["Our story", "/our-story"],
@@ -200,6 +201,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           onSubmit={(e) => {
             e.preventDefault();
             setSearchOpen(false);
+            window.dispatchEvent(new CustomEvent("almost-formal:navigate", { detail: "/shop" }));
             router.push(`/shop?search=${encodeURIComponent(search)}`);
           }}
         >
@@ -218,6 +220,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <p>Try “striped”, “paisley” or “forest”.</p>
       </Modal>
       <Toast />
+      <NavigationLoading />
     </>
   );
 }
