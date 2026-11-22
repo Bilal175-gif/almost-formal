@@ -94,10 +94,10 @@ export function StoryBlock() {
       <div className="story-collage">
         <div className="photo-frame">
           <img
-            src="/images/story.webp"
-            alt="Editorial portrait with a red paisley tie"
+            src="/images/story-cup.webp"
+            alt="Almost Formal stamped kraft paper cup"
           />
-          <span className="handwriting">a look worth remembering.</span>
+          <span className="handwriting">details worth remembering.</span>
         </div>
         <div className="paper-note story-note handwriting">
           Just

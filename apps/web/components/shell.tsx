@@ -175,6 +175,9 @@ export function Shell({ children }: { children: React.ReactNode }) {
             ),
           )}
         </nav>
+        <div className="menu-sticky-note sticky-note handwriting">
+          Let your wardrobe have a personality.
+        </div>
         <div className="menu-social">
           <a href="https://www.instagram.com/almost.formal/" target="_blank" rel="noreferrer">
             Instagram @almost.formal <ArrowRight size={18} />

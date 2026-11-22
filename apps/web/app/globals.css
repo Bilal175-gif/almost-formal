@@ -970,7 +970,6 @@ textarea {
 }
 .photo-frame img {
   height: 100%;
-  filter: sepia(0.45) saturate(0.75);
 }
 .photo-frame > span {
   position: absolute;
@@ -1736,6 +1735,17 @@ dialog:not([open]) {
 }
 .menu-drawer nav a.active {
   border-bottom-color: var(--forest);
+}
+.menu-sticky-note {
+  align-self: center;
+  max-width: 255px;
+  margin: 34px 8px 24px;
+  padding: 24px 20px 20px;
+  color: var(--ink);
+  font-size: 28px;
+  line-height: 1.05;
+  text-align: center;
+  transform: rotate(-5deg);
 }
 .menu-social {
   margin-top: auto;
