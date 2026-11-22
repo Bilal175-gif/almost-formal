@@ -1,4 +1,5 @@
 import type { Product } from "../../../packages/shared";
+import featuredFallback from "./featured-fallback.json";
 
 type ProductList = { products: Product[]; total: number; pages: number; page: number };
 
@@ -22,9 +23,9 @@ export async function featuredCatalog(): Promise<ProductList | null> {
       next: { revalidate: 300 },
       signal: AbortSignal.timeout(5000),
     });
-    return response.ok ? (await response.json()) as ProductList : null;
+    return response.ok ? (await response.json()) as ProductList : featuredFallback as ProductList;
   } catch {
-    return null;
+    return featuredFallback as ProductList;
   }
 }
 

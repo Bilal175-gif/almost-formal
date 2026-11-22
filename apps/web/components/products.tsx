@@ -145,6 +145,7 @@ export function Featured({ initial }: { initial?: ProductList }) {
     queryKey: ["featured"],
     queryFn: () => api<ProductList>("/products?featured=true&limit=4"),
     initialData: initial,
+    initialDataUpdatedAt: 0,
     staleTime: 300000,
   });
   return (
@@ -163,7 +164,7 @@ export function Featured({ initial }: { initial?: ProductList }) {
       </div>
       {isPending ? (
         <ProductSkeletons />
-      ) : error ? (
+      ) : error && !data ? (
         <ErrorBox message={error.message} retry={() => void refetch()} />
       ) : (
         <div className="product-grid">

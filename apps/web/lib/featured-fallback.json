@@ -1,0 +1,135 @@
+{
+  "products": [
+    {
+      "id": "cmwfmahb1004dl73dyws0vmjt",
+      "slug": "burgundy-swirl-tie",
+      "sku": "AF-TIE-28",
+      "title": "Burgundy Swirl Tie",
+      "description": "Blue and gold swirls curling over deep burgundy. Rich, swirling and full of movement — one of one.",
+      "price": 120000,
+      "stock": 1,
+      "pattern": "Abstract",
+      "color": "Red",
+      "condition": "Good",
+      "conditionNote": "Good vintage condition with minor signs of wear.",
+      "flaws": "None noted",
+      "length": 147,
+      "width": 9,
+      "material": null,
+      "era": null,
+      "category": "Regular Ties",
+      "featured": true,
+      "archived": false,
+      "createdAt": "2026-11-13T23:37:58.045Z",
+      "updatedAt": "2026-11-13T23:37:58.045Z",
+      "images": [
+        {
+          "id": "cmwfmahb1004el73dimq4bxt0",
+          "productId": "cmwfmahb1004dl73dyws0vmjt",
+          "url": "https://res.cloudinary.com/dmwgexmef/image/upload/v1794613077/almost-formal/products/quu4wpzpdromdz5gbxxr.webp",
+          "alt": "Burgundy Swirl Tie",
+          "position": 0
+        }
+      ]
+    },
+    {
+      "id": "cmwfma8210048l73dn07ild9t",
+      "slug": "brown-paisley-tie",
+      "sku": "AF-TIE-27",
+      "title": "Brown Paisley Tie",
+      "description": "Big classic paisley in blue, cream and teal on warm brown. The timeless one — one of one.",
+      "price": 120000,
+      "stock": 1,
+      "pattern": "Paisley",
+      "color": "Brown",
+      "condition": "Good",
+      "conditionNote": "Good vintage condition with minor signs of wear.",
+      "flaws": "None noted",
+      "length": 147,
+      "width": 9,
+      "material": null,
+      "era": null,
+      "category": "Regular Ties",
+      "featured": true,
+      "archived": false,
+      "createdAt": "2026-11-13T23:37:46.057Z",
+      "updatedAt": "2026-11-13T23:37:46.057Z",
+      "images": [
+        {
+          "id": "cmwfma8210049l73dutfc9neu",
+          "productId": "cmwfma8210048l73dn07ild9t",
+          "url": "https://res.cloudinary.com/dmwgexmef/image/upload/v1794613064/almost-formal/products/uevgvfqdgpjghzclvfwi.webp",
+          "alt": "Brown Paisley Tie",
+          "position": 0
+        }
+      ]
+    },
+    {
+      "id": "cmwfma57n0043l73drtpospf8",
+      "slug": "crimson-diamond-tie",
+      "sku": "AF-TIE-26",
+      "title": "Crimson Diamond Tie",
+      "description": "Crimson diamond lattice with grey ovals and blue flecks. Bold geometry with a vintage soul — one of one.",
+      "price": 120000,
+      "stock": 1,
+      "pattern": "Geometric",
+      "color": "Red",
+      "condition": "Good",
+      "conditionNote": "Good vintage condition with minor signs of wear.",
+      "flaws": "None noted",
+      "length": 147,
+      "width": 9,
+      "material": null,
+      "era": null,
+      "category": "Regular Ties",
+      "featured": true,
+      "archived": false,
+      "createdAt": "2026-11-13T23:37:42.371Z",
+      "updatedAt": "2026-11-13T23:37:42.371Z",
+      "images": [
+        {
+          "id": "cmwfma57n0044l73dzm90wmut",
+          "productId": "cmwfma57n0043l73drtpospf8",
+          "url": "https://res.cloudinary.com/dmwgexmef/image/upload/v1794613060/almost-formal/products/pa6ucqlzyc2wlqimxtsc.webp",
+          "alt": "Crimson Diamond Tie",
+          "position": 0
+        }
+      ]
+    },
+    {
+      "id": "cmwfm9wa4003vl73ddzl5wqnc",
+      "slug": "silver-wave-tie",
+      "sku": "AF-TIE-25",
+      "title": "Silver Wave Tie",
+      "description": "Flowing silver and blue waves sweeping across the tie. Smooth, modern and quietly striking — one of one.",
+      "price": 120000,
+      "stock": 1,
+      "pattern": "Abstract",
+      "color": "Blue",
+      "condition": "Good",
+      "conditionNote": "Good vintage condition with minor signs of wear.",
+      "flaws": "None noted",
+      "length": 147,
+      "width": 9,
+      "material": null,
+      "era": null,
+      "category": "Regular Ties",
+      "featured": true,
+      "archived": false,
+      "createdAt": "2026-11-13T23:37:30.796Z",
+      "updatedAt": "2026-11-13T23:37:30.796Z",
+      "images": [
+        {
+          "id": "cmwfm9wa4003wl73djp2610qz",
+          "productId": "cmwfm9wa4003vl73ddzl5wqnc",
+          "url": "https://res.cloudinary.com/dmwgexmef/image/upload/v1794613049/almost-formal/products/majjafa6h9xvsdxtmico.webp",
+          "alt": "Silver Wave Tie",
+          "position": 0
+        }
+      ]
+    }
+  ],
+  "total": 29,
+  "page": 1,
+  "pages": 8
+}
