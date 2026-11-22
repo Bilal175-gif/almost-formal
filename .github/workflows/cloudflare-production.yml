@@ -31,6 +31,35 @@ jobs:
         run: |
           test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo 'Missing CLOUDFLARE_ACCOUNT_ID secret'; exit 1; }
           test -n "$CLOUDFLARE_API_TOKEN" || { echo 'Missing CLOUDFLARE_API_TOKEN secret'; exit 1; }
+      - name: Normalize and validate Cloudflare token
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.error
+          import urllib.request
+
+          token = os.environ["CLOUDFLARE_API_TOKEN"].strip().strip('"\'').strip()
+          if token.lower().startswith("bearer "):
+              token = token[7:].strip()
+          token = "".join(token.split())
+          account = os.environ["CLOUDFLARE_ACCOUNT_ID"].strip().strip('"\'').strip()
+          if not token or not account:
+              raise SystemExit("Cloudflare credentials are empty after normalization")
+          request = urllib.request.Request(
+              "https://api.cloudflare.com/client/v4/user/tokens/verify",
+              headers={"Authorization": f"Bearer {token}"},
+          )
+          try:
+              with urllib.request.urlopen(request, timeout=20) as response:
+                  valid = json.load(response).get("success") is True
+          except (urllib.error.HTTPError, urllib.error.URLError):
+              valid = False
+          if not valid:
+              raise SystemExit("Cloudflare API token is invalid; replace the production CLOUDFLARE_API_TOKEN secret with a valid token")
+          with open(os.environ["GITHUB_ENV"], "a") as env:
+              env.write(f"CLOUDFLARE_API_TOKEN={token}\nCLOUDFLARE_ACCOUNT_ID={account}\n")
+          PY
       - run: npm ci
       - run: npm run db:generate
       - name: Check production API
