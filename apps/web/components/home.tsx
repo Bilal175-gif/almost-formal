@@ -9,6 +9,7 @@ import {
 import { Star, Smile, ArrowDoodle } from "./doodles";
 import { Featured, MobileDiscovery } from "./products";
 import { SocialFollow } from "./social-follow";
+import type { Product } from "../../../packages/shared";
 export function Hero() {
   return (
     <section className="hero" aria-labelledby="hero-title">
@@ -178,11 +179,11 @@ export function SocialGallery() {
     </section>
   );
 }
-export default function HomePage() {
+export default function HomePage({ featured }: { featured?: { products: Product[]; total: number; pages: number; page: number } }) {
   return (
     <>
       <MobileDiscovery />
-      <Featured />
+      <Featured initial={featured} />
       <StoryBlock />
       <div className="bottom-collage">
         <div className="not-overdressed sticky-note">

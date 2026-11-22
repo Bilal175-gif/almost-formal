@@ -182,7 +182,7 @@ textarea {
   padding: 0;
 }
 .header {
-  height: 108px;
+  height: 124px;
   position: relative;
   z-index: 10;
   display: flex;
@@ -273,8 +273,8 @@ textarea {
 }
 .brand img {
   display: block;
-  width: 80px;
-  height: 80px;
+  width: 104px;
+  height: 104px;
   object-fit: contain;
 }
 .brand > span {
@@ -2612,8 +2612,12 @@ td select {
     padding: 0;
   }
   .header {
-    height: 88px;
+    height: 96px;
     padding: 0 25px;
+  }
+  .header .brand img {
+    width: 82px;
+    height: 82px;
   }
   .brand-wrap > .doodle {
     display: none;
@@ -2888,7 +2892,7 @@ td select {
     padding: 0;
   }
   .header {
-    height: 83px;
+    height: 90px;
     border-radius: 0;
     padding: 0 15px;
     border-bottom: 1px solid #dccfb5;
@@ -2912,9 +2916,9 @@ td select {
     font-size: 29px;
     letter-spacing: -1px;
   }
-  .brand img {
-    width: 64px;
-    height: 64px;
+  .header .brand img {
+    width: 76px;
+    height: 76px;
   }
   .brand > small {
     font-size: 5.5px;

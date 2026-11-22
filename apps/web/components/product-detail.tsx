@@ -14,7 +14,7 @@ import {
   Package,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { productImageUrl, productImageSrcSet } from "@/lib/cloudinary-image";
+import { productImageUrl, productImageSrcSet, useUnavailableImage } from "@/lib/cloudinary-image";
 import { useStore } from "@/lib/store";
 import { type Product, money } from "../../../packages/shared";
 import { ErrorBox } from "./ui";
@@ -77,7 +77,7 @@ export function ProductDetail({ slug, initial }: { slug: string; initial: Produc
                 aria-label={`View photo ${i + 1}`}
                 aria-pressed={selected === i}
               >
-                <img src={productImageUrl(img.url, 160)} alt={img.alt} />
+                <img src={productImageUrl(img.url, 160)} alt={img.alt} onError={useUnavailableImage} />
               </button>
             ))}
           </div>
@@ -85,6 +85,7 @@ export function ProductDetail({ slug, initial }: { slug: string; initial: Produc
             <img
               src={productImageUrl(p.images[selected]?.url || p.images[0]?.url, 1200)}
               srcSet={productImageSrcSet(p.images[selected]?.url || p.images[0]?.url, [480, 800, 1200, 1600])}
+              onError={useUnavailableImage}
               sizes="(max-width: 850px) 90vw, 50vw"
               alt={p.images[selected]?.alt || p.title}
               width={384}

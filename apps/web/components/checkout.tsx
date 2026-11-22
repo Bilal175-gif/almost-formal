@@ -11,7 +11,7 @@ import {
   money,
 } from "../../../packages/shared";
 import { api, type Settings } from "@/lib/api";
-import { productImageUrl } from "@/lib/cloudinary-image";
+import { productImageUrl, useUnavailableImage } from "@/lib/cloudinary-image";
 import { useStore } from "@/lib/store";
 import { ErrorBox } from "./ui";
 import { Smile } from "./doodles";
@@ -414,7 +414,7 @@ export function Checkout() {
           {s.items.map(({ product: p, quantity }) => (
             <div className="cart-item" key={p.id}>
               <Link href={`/product/${p.slug}`}>
-                <img src={productImageUrl(p.images[0]?.url, 160)} alt={p.title} />
+                <img src={productImageUrl(p.images[0]?.url, 160)} alt={p.title} onError={useUnavailableImage} />
               </Link>
               <div>
                 <Link href={`/product/${p.slug}`}>{p.title}</Link>

@@ -1,4 +1,12 @@
 const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+export const unavailableImage = "/images/photo-unavailable.svg";
+
+export function useUnavailableImage(event: React.SyntheticEvent<HTMLImageElement>) {
+  const image = event.currentTarget;
+  if (image.getAttribute("src") === unavailableImage) return;
+  image.removeAttribute("srcset");
+  image.src = unavailableImage;
+}
 
 export function productImageUrl(src: string | undefined, width: number) {
   if (!src || !cloudName) return src || "";

@@ -7,7 +7,7 @@ import { Heart, Plus, ArrowRight, Search, Eye, Minus } from "lucide-react";
 import type { Product } from "../../../packages/shared";
 import { money } from "../../../packages/shared";
 import { api } from "@/lib/api";
-import { productImageUrl, productImageSrcSet } from "@/lib/cloudinary-image";
+import { productImageUrl, productImageSrcSet, useUnavailableImage } from "@/lib/cloudinary-image";
 import { useStore } from "@/lib/store";
 import { Star, Smile } from "./doodles";
 import { ErrorBox, Modal } from "./ui";
@@ -40,6 +40,7 @@ export function ProductCard({
             <img
               src={productImageUrl(imageUrl, 640)}
               srcSet={productImageSrcSet(imageUrl, [320, 640, 960])}
+              onError={useUnavailableImage}
               sizes="(max-width: 600px) 50vw, (max-width: 1000px) 33vw, 25vw"
               alt={p.images[0]?.alt || p.title}
               loading={eagerImage ? "eager" : "lazy"}
@@ -91,6 +92,7 @@ export function ProductCard({
         <img
           src={productImageUrl(p.images[0]?.url, 960)}
           srcSet={productImageSrcSet(p.images[0]?.url, [480, 960, 1280])}
+          onError={useUnavailableImage}
           sizes="(max-width: 600px) 90vw, 480px"
           alt={p.title}
         />
@@ -138,10 +140,12 @@ export function ProductSkeletons() {
     </div>
   );
 }
-export function Featured() {
+export function Featured({ initial }: { initial?: ProductList }) {
   const { data, error, isPending, refetch } = useQuery({
     queryKey: ["featured"],
     queryFn: () => api<ProductList>("/products?featured=true&limit=4"),
+    initialData: initial,
+    staleTime: 300000,
   });
   return (
     <section className="featured paper">
@@ -168,7 +172,7 @@ export function Featured() {
               key={p.id}
               product={p}
               index={i}
-              eagerImage={false}
+              eagerImage={i === 0}
             />
           ))}
         </div>
