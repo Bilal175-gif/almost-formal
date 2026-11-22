@@ -67,7 +67,7 @@ export function Benefits() {
       <div>
         <BadgeCheck />
         <span>
-          <strong>ONE-OF-ONE PIECES</strong>
+          <strong>HANDPICKED PIECES</strong>
           <small>No mass production</small>
         </span>
       </div>
@@ -155,10 +155,12 @@ export function SocialGallery() {
       </div>
       <div>
         {[4, 6, 2, 3, 7].map((n, i) => (
-          <Link
+          <a
             key={n}
-            href="/shop"
-            aria-label={`Explore tie ${i + 1}`}
+            href="https://www.instagram.com/almost.formal/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`View Almost Formal on Instagram: tie ${i + 1}`}
           >
             <img
               src={`/images/tie-${n}.webp`}
@@ -173,7 +175,7 @@ export function SocialGallery() {
               }
               loading="lazy"
             />
-          </Link>
+          </a>
         ))}
       </div>
     </section>

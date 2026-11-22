@@ -772,8 +772,14 @@ textarea {
   margin-top: 0;
   padding: 48px 48px 36px;
   border-radius: 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+}
+.collection-kicker {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: var(--forest);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
 }
 .section-heading {
   display: flex;
@@ -898,23 +904,6 @@ textarea {
 .quick-view:focus-visible {
   opacity: 1;
   transform: translate(-50%, 0);
-}
-.product-sticker {
-  position: absolute;
-  left: -4px;
-  top: 27%;
-  background: #fbf0d3;
-  transform: rotate(-13deg);
-  font-family: var(--hand);
-  font-size: 22px;
-  line-height: 1;
-  padding: 6px 13px;
-  box-shadow: 1px 2px 3px #35261922;
-}
-.product-sticker.yellow {
-  background: var(--mustard);
-  top: auto;
-  bottom: 13px;
 }
 .sold-label {
   position: absolute;
@@ -2954,7 +2943,6 @@ td select {
     height: 90px;
     border-radius: 0;
     padding: 0 15px;
-    border-bottom: 1px solid #dccfb5;
   }
   .header:after {
     display: none;
@@ -3134,10 +3122,6 @@ td select {
     opacity: 1;
     transform: translate(-50%, 0);
     background: #faf0d9d9;
-  }
-  .product-sticker {
-    font-size: 20px;
-    padding: 4px 9px;
   }
   .featured-bottom {
     margin-top: 22px;

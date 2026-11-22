@@ -12,11 +12,8 @@ export const metadata: Metadata = {
     "Shop curated, one-of-one patterned neckties in Pakistan. Explore the current collection and find a tie with character.",
   alternates: { canonical: "/" },
   icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/icon.png", type: "image/png", sizes: "32x32" },
-    ],
-    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    icon: [{ url: "/images/almost-formal-green-logo.webp", type: "image/webp", sizes: "256x256" }],
+    apple: [{ url: "/images/almost-formal-green-logo.webp", sizes: "256x256" }],
   },
 };
 export default function RootLayout({

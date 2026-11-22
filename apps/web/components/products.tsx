@@ -56,9 +56,6 @@ export function ProductCard({
           >
             <Heart size={21} fill={wished ? "currentColor" : "none"} />
           </button>
-          {p.stock === 1 && (
-            <span className="product-sticker yellow">Only one left</span>
-          )}
           {p.stock === 0 && <span className="sold-label">Found a home</span>}
           <button
             className="quick-view"
@@ -98,7 +95,7 @@ export function ProductCard({
         />
         <div>
           <span className="eyebrow">
-            {p.stock === 1 ? "ONE OF ONE" : "CURATED FIND"}
+            CURATED FIND
           </span>
           <h2>{p.title}</h2>
           <h3>{money(p.price)}</h3>
@@ -235,6 +232,7 @@ export function Collection({ wishlist = false, initial, initialPage = 1 }: { wis
       <div className="collection-main">
         <div className="collection-heading">
           <div>
+            {!wishlist && <span className="collection-kicker">ONE OF ONE</span>}
             <h1>
               {wishlist
                 ? "Saved for your next story."
@@ -291,9 +289,7 @@ export function Collection({ wishlist = false, initial, initialPage = 1 }: { wis
               ))}
             </div>
             <div className="pagination">
-              <span>
-                {wishlist ? products.length : data?.total} one-of-one finds
-              </span>
+              <span>{wishlist ? products.length : data?.total} finds</span>
               {data && data.pages > 1 && (
                 <div>
                   {page === 1 ? <span className="page-button disabled">Previous</span> : <Link className="page-button" href={`/shop?page=${page - 1}`} onClick={() => setPage(page - 1)}>Previous</Link>}

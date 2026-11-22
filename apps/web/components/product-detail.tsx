@@ -151,9 +151,7 @@ export function ProductDetail({ slug, initial }: { slug: string; initial: Produc
               <Package />
               <span>
                 {p.stock > 0
-                  ? p.stock === 1
-                    ? "Only one available"
-                    : `${p.stock} available`
+                  ? "In stock"
                   : "Sold out — found a new home"}
               </span>
             </div>
