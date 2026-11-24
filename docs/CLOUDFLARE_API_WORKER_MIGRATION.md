@@ -1,6 +1,6 @@
 # Cloudflare API Worker migration preparation
 
-This prepares a separate Cloudflare Worker backend. It does not deploy the Worker or alter the frontend's API URL. Keep the Render API online until a separately approved cutover.
+The storefront and API now run on Cloudflare Workers. Product and order records use the production D1 database; product images use Cloudinary. The former Render API is no longer a live request dependency. Keep its database available for historical order reconciliation until its identity and contents have been verified.
 
 ## Worker environments
 
@@ -9,7 +9,7 @@ This prepares a separate Cloudflare Worker backend. It does not deploy the Worke
 - Staging D1: `almost-formal-staging` (`e97a7f20-d072-41a1-8231-77c91cc807a8`)
 - Production D1: `almost-formal-db` (`24bd6c7d-0cf3-408d-bd98-516d96018170`)
 
-Both migrations `0001_init.sql` and `0002_worker_hardening.sql` have been applied to the production D1 database. No production custom domain or route is configured. No Worker is deployed.
+Both migrations `0001_init.sql` and `0002_worker_hardening.sql` have been applied to the production D1 database. The production API Worker is deployed at `https://almost-formal-api-production.bilalshah2237463.workers.dev`; the frontend proxies `/api/*` to it.
 
 Both environments use `migrations/`. Run migrations against local D1 for tests:
 
@@ -56,11 +56,11 @@ The export can contain customer addresses, emails, order access tokens, and Argo
 - The Worker verifies Express Argon2id hashes directly with bounded parameters; it does not rewrite or downgrade those hashes. Hashes outside its supported Worker limits must be identified before import.
 - Existing sessions are not needed for cutover; administrators will sign in again.
 - The read-only PostgreSQL source export contains 197 rows across 21 application tables. It has been imported into production D1, and both count validation and row-level verification passed with zero foreign-key violations.
-- The source identity as the exact Render runtime database is not independently confirmed. Confirm `NEON_SOURCE_URL` is the Render production database before cutover.
+- The source identity as the exact former Render runtime database is not independently confirmed. The configured local Neon connection showed one order while D1 showed three. Do not delete the former database until historical orders have been reconciled.
 - All 29 product-image references are Cloudinary URLs. 24 ranged GET checks returned 206 and 5 returned 404; restore or replace the missing image assets before cutover.
 - Historical local `/uploads` assets are not in PostgreSQL. R2 is not enabled in the Cloudflare account; Cloudinary is the existing integration, but credentials are unavailable.
 - Email credentials and a verified sender must be configured and tested.
 - Configure the `api.almostformal.shop` hostname and Worker route before production traffic is switched.
 - Resolve the live frontend/API 502 and `www.almostformal.shop` TLS 525 states only after the migration route is ready.
 - Staging tests must cover login/CSRF, admin routes, image decoding/upload, checkout/idempotency, stock reservation, cancellation, concurrent status changes, Resend failure handling, and D1 migration counts.
-- Only after approval should the frontend build's `API_URL` be changed to the production API Worker URL. This preparation does not change it.
+- The frontend build's `API_URL` now points to the production API Worker URL.

@@ -18,8 +18,9 @@
     "production": {
       "name": "almost-formal-api-production",
       "vars": {
-        "APP_ORIGIN": "https://almostformal.shop",
-        "ALLOWED_ORIGINS": "https://almostformal.shop",
+        "APP_ORIGIN": "https://almost-formal.bilalshah2237463.workers.dev",
+        "ALLOWED_ORIGINS": "https://almostformal.shop,https://almost-formal.bilalshah2237463.workers.dev",
+        "CLOUDINARY_CLOUD_NAME": "dmwgexmef",
         "EMAIL_FROM": "Almost Formal <orders@almostformal.shop>"
       },
       "d1_databases": [

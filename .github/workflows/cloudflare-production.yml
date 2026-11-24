@@ -16,8 +16,8 @@ jobs:
     environment: production
     env:
       CF_WORKERS: "1"
-      API_URL: https://almost-formal-5qy4.onrender.com
-      NEXT_PUBLIC_API_URL: https://almost-formal-5qy4.onrender.com
+      API_URL: https://almost-formal-api-production.bilalshah2237463.workers.dev
+      NEXT_PUBLIC_API_URL: https://almost-formal-api-production.bilalshah2237463.workers.dev
       NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: dmwgexmef
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -62,11 +62,16 @@ jobs:
           PY
       - run: npm ci
       - run: npm run db:generate
+      - run: npm run check -w @almost-formal/api-worker
+      - run: npm test -w @almost-formal/api-worker
+      - name: Deploy production API Worker
+        working-directory: apps/api-worker
+        run: npx wrangler deploy --env production
       - name: Check production API
         run: |
           response=$(curl --fail --silent --show-error --max-time 120 \
             --header 'Accept: application/json' "$API_URL/api/health")
-          node -e 'const data=JSON.parse(process.argv[1]); if(data.service!=="almost-formal-api" || data.ok!==true) process.exit(1)' "$response"
+          node -e 'const data=JSON.parse(process.argv[1]); if(data.service!=="almost-formal-api" || data.runtime!=="cloudflare-worker" || data.ok!==true) process.exit(1)' "$response"
       - run: npm run typecheck
       - run: npm run cf:build -w @almost-formal/web
       - name: Deploy production Worker

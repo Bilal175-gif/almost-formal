@@ -27,7 +27,7 @@ npm run dev:api
 npm run dev:web
 ```
 
-Start the two commands in either order. Both use the fixed API port in the root `.env` (default **4100**), so the frontend can start before the backend. If that port is occupied by another service, the command stops with a clear error; set `PORT` to a free port in `.env` and restart both terminals. Open the URL printed by the frontend, usually **http://localhost:3000**. If that web port is occupied, `dev:web` selects the next free port automatically. Stop either service with Ctrl+C in its terminal. Running them separately makes logs and restarts independent, but does not by itself make requests faster.
+Start the two commands in either order. `dev:web` starts the API too when it is not already running, so the storefront works when launched by itself. Both use the fixed API port in the root `.env` (default **4100**). If that port is occupied by another service, the command stops with a clear error; set `PORT` to a free port in `.env` and restart both terminals. Open the URL printed by the frontend, usually **http://localhost:3000**. If that web port is occupied, `dev:web` selects the next free port automatically. Stop either service with Ctrl+C in its terminal.
 
 The combined `npm run dev` command automatically picks the next free web and API ports, starting at 3000 and 4100. If you want to start its search from a different port, set `WEB_PORT` or `PORT`. The runner updates `APP_ORIGIN` and `API_URL` to match. Next.js proxies `/api` and `/uploads`. The seeded catalogue is explicitly demo content. Seeding is idempotent and does not reset existing stock.
 
@@ -89,7 +89,7 @@ Playwright defaults to the installed Chrome executable at `/opt/google/chrome/ch
 
 ## Build and deploy
 
-For **Cloudflare frontend + Render Free API + Neon PostgreSQL + Cloudinary**, follow [Render Free setup](docs/RENDER_FREE_SETUP.md). Use `npm run build:render` and `npm run start:render` for that backend. The SQLite commands below describe the separate persistent-host option.
+The live storefront and API run on Cloudflare Workers. The API uses D1 for store records and Cloudinary for product images. The production deployment workflow builds and deploys the API Worker before the frontend Worker. The Render/Neon instructions in `docs/RENDER_FREE_SETUP.md` describe the former hosting setup; they are no longer used by the live storefront.
 
 For the optional Cloudflare Workers frontend and Cloudinary image setup, see [Cloudflare + Cloudinary setup](docs/CLOUDFLARE_CLOUDINARY_SETUP.md). The Express/SQLite API remains a Node service on persistent storage.
 

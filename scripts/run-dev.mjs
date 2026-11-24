@@ -74,11 +74,26 @@ const runCommand = (command) => {
 };
 
 if (service) {
+  const companionApi = service === 'web' && !(await isAlmostFormalApi(apiPort))
+    ? runCommand(commands.dev.api)
+    : null;
   const child = runCommand(commands.dev[service]);
-  const shutdown = () => child.kill('SIGTERM');
+  const shutdown = () => {
+    child.kill('SIGTERM');
+    companionApi?.kill('SIGTERM');
+  };
   process.on('SIGINT', shutdown);
   process.on('SIGTERM', shutdown);
-  child.on('exit', (code, signal) => process.exit(code ?? (signal ? 1 : 0)));
+  companionApi?.on('exit', (code, signal) => {
+    if (code !== 0 || signal) {
+      child.kill('SIGTERM');
+      process.exit(code ?? (signal ? 1 : 0));
+    }
+  });
+  child.on('exit', (code, signal) => {
+    companionApi?.kill('SIGTERM');
+    process.exit(code ?? (signal ? 1 : 0));
+  });
 } else {
   const api = runCommand(commands[mode].api);
   const web = runCommand(commands[mode].web);

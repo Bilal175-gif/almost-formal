@@ -11,12 +11,12 @@ export class ApiError extends Error {
 const unavailable =
   "The store is temporarily unavailable. Please try again in a minute.";
 
-// React Query retries reads only. Allow a sleeping free-tier API time to wake.
+// React Query retries reads only for transient API or network failures.
 // Never automatically replay order/login writes.
 export function shouldRetryApiQuery(failureCount: number, error: Error) {
   if (error instanceof ApiError) {
     if (error.status === 429) return false;
-    // Render can briefly return 502/503 while the free API starts.
+    // A gateway or Worker can briefly return 502/503 during deployment.
     if (error.status === 502 || error.status === 503)
       return failureCount < 5;
     return error.status >= 500 && failureCount < 5;
