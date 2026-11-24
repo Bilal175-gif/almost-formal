@@ -64,6 +64,9 @@ jobs:
       - run: npm run db:generate
       - run: npm run check -w @almost-formal/api-worker
       - run: npm test -w @almost-formal/api-worker
+      - name: Apply production D1 migrations
+        working-directory: apps/api-worker
+        run: npx wrangler d1 migrations apply almost-formal-db --remote --env production
       - name: Deploy production API Worker
         working-directory: apps/api-worker
         run: npx wrangler deploy --env production

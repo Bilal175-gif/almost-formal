@@ -21,7 +21,8 @@
     "production": {
       "name": "almost-formal",
       "services": [
-        { "binding": "WORKER_SELF_REFERENCE", "service": "almost-formal" }
+        { "binding": "WORKER_SELF_REFERENCE", "service": "almost-formal" },
+        { "binding": "API_WORKER", "service": "almost-formal-api-production" }
       ]
     }
   }

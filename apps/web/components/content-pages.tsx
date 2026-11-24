@@ -64,45 +64,32 @@ export const infoPages: Record<
     ],
   },
   "shipping-policy": {
-    title: "A little journey to your door.",
+    title: "A Little Journey to Your Door",
     eyebrow: "SHIPPING & DELIVERY",
-    intro:
-      "This is draft store information for development. Shipping regions, dispatch timelines, carriers and delivery commitments have not yet been approved by the business.",
-    draft: true,
+    intro: "Every Almost Formal tie is packed by hand in Lahore and sent across Pakistan. Last updated: 25 November 2026.",
     sections: [
-      [
-        "Delivery charges",
-        "The configured delivery charge is calculated at checkout before an order is placed. Any free-shipping thresholds or regional exceptions must be confirmed by the store before launch.",
-      ],
-      [
-        "Dispatch & tracking",
-        "Once an administrator marks an order shipped and adds a tracking number, those details appear in the private order tracking page. A delivery estimate is not yet promised.",
-      ],
-      [
-        "Before launch",
-        "The store owner must confirm service areas, handling times, courier arrangements, failed-delivery handling and contact details. Do not treat this draft as a confirmed service commitment.",
-      ],
+      ["Where we deliver", "We deliver across Pakistan. International shipping is not available yet. If a courier cannot serve your address, we’ll contact you before dispatch."],
+      ["Delivery charges", "The delivery charge is shown at checkout before you place your order. There are no hidden delivery fees. For Instagram DM orders, we’ll confirm the exact total before you commit."],
+      ["Dispatch and delivery", "We check each one-of-one tie again before packing. Delivery times depend on the courier, your location, weather and holidays; we’ll share the available estimate when your order is confirmed."],
+      ["Order confirmation", "We confirm your name, phone number and full address before dispatch. Cash on delivery orders are shipped after you reply ‘Confirm’. If we cannot reach you, we may release the one-of-one tie for sale again."],
+      ["Tracking", "Once your order ships, we’ll share the courier tracking number. It also appears on your private order page. Keep your order number and private access link to yourself."],
+      ["Payment on delivery", "Please keep the exact cash amount ready. Check that the parcel is sealed when it arrives. If it is damaged, photograph it and contact us within three days of delivery."],
+      ["Failed, lost or delayed parcels", "If delivery fails because the address is wrong, the phone is unreachable or a COD parcel is refused, contact us to arrange another attempt. A new delivery charge may apply. If the courier confirms a parcel is lost, we’ll offer a refund or another tie."],
+      ["Contact", "Message @almost.formal on Instagram or use the website contact form with your order number. Do not share your private order access link publicly."],
     ],
   },
   "returns-policy": {
-    title: "Let’s make it right.",
+    title: "Returns, Exchanges & Refunds",
     eyebrow: "RETURNS & EXCHANGES",
-    intro:
-      "Draft content — the business has not approved a returns or refund policy. Review the condition and visible flaws on each product page before placing a demo order.",
-    draft: true,
+    intro: "Last updated: 25 November 2026. Every Almost Formal tie is a one-of-one piece, and most are vintage or pre-loved. We cannot restock an identical tie, so we work with you on a fair resolution, with exchanges considered first.",
     sections: [
-      [
-        "Product condition",
-        "Each listing records known condition details and flaws; these need physical verification before real inventory is sold.",
-      ],
-      [
-        "Something isn’t right?",
-        "Use the contact form and include your order number and a description of the issue. Never post your private order access code publicly.",
-      ],
-      [
-        "Pending business decisions",
-        "Return windows, eligibility, return shipping costs, refund methods and treatment of damaged or incorrect orders must be approved before launch. No specific refund outcome is promised by this draft.",
-      ],
+      ["Product condition", "Every listing shows the Tie ID, available fabric details, length, width and a condition grade. Excellent means no visible flaws. Good means very light signs of wear. Has character means visible marks, small snags or fading, described and photographed on the listing. We clean, steam and inspect every tie before listing it. A flaw clearly listed or visible in photos is not grounds for a return. Colours may differ slightly between screens."],
+      ["If your order is not as described", "This covers a wrong tie, an unlisted flaw or damage in transit. Contact @almost.formal on Instagram or use the website contact form within three days of delivery. Include your order number, Tie ID and clear photos or a short video. For transit damage, include the packaging too."],
+      ["Exchange or refund", "If we agree the tie is not as described, you may exchange it for an available tie of equal or lower price; we cover delivery of the replacement. If no suitable exchange is available, we refund the tie price. Delivery charges are refunded when the mistake is ours. COD refunds are sent by bank transfer or mobile wallet after approval; share account details only in a private channel."],
+      ["If you change your mind", "We do not refund change-of-mind returns for one-of-one pieces. Within three days of delivery, you may request an exchange or store credit if the tie is unworn, in its original condition, free of perfume, smoke or marks, and returned with its tag and packaging. You pay return shipping for a change-of-mind exchange."],
+      ["What we cannot accept", "We cannot accept ties worn, altered, stained or damaged after delivery, or claims reported more than three days after delivery. Items explicitly marked Final sale on their listing cannot be exchanged for change of mind."],
+      ["Cash on delivery and cancellation", "Check that your parcel is sealed and addressed to you. We confirm your address and phone number before dispatching COD orders. Repeated refused COD parcels may require advance payment on later orders. You may cancel before dispatch by messaging us; once the parcel is with the courier, the exchange rules apply."],
+      ["Order privacy and contact", "Never post your order number or private order access code publicly. We never ask for card PINs or one-time passwords. Message @almost.formal on Instagram or use the website contact form. Wait for return instructions before shipping a tie back."],
     ],
   },
   "privacy-policy": {

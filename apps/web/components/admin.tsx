@@ -33,6 +33,8 @@ type Customer = {
   city: string;
   orders: { id: string; number: string; total: number; status: string }[];
 };
+type BlogPost = { id: string; title: string; slug: string; summary: string; body: string; coverUrl: string; published: number };
+type StoryVideo = { id: string; url: string; caption: string; position: number; published: number };
 const emptyProduct = {
   title: "",
   slug: "",
@@ -64,6 +66,7 @@ export function Admin() {
   const [showArchived, setShowArchived] = useState(false);
   const [editor, setEditor] = useState<Editable | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
+  const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
   const session = useQuery({
     queryKey: ["admin-session"],
     queryFn: () => api<Session>("/auth/me"),
@@ -114,6 +117,8 @@ export function Admin() {
       >("/admin/messages"),
     enabled: auth && tab === "Messages",
   });
+  const blog = useQuery({ queryKey: ["admin-blog"], queryFn: () => api<BlogPost[]>("/admin/blog"), enabled: auth && tab === "Blog" });
+  const stories = useQuery({ queryKey: ["admin-stories"], queryFn: () => api<StoryVideo[]>("/admin/stories"), enabled: auth && tab === "Stories" });
   const settings = useQuery({
     queryKey: ["settings"],
     queryFn: () => api<Settings>("/settings"),
@@ -257,6 +262,8 @@ export function Admin() {
           "Inventory",
           "Customers",
           "Messages",
+          "Blog",
+          "Stories",
           "Settings",
         ].map((t) => (
           <button
@@ -588,6 +595,47 @@ export function Admin() {
             <p>No messages yet.</p>
           )}
         </>
+      )}
+      {tab === "Blog" && (
+        <section className="editorial-admin">
+          <h2>Blog articles</h2>
+          <p>Drafts stay hidden until you publish them.</p>
+          <form className="form-stack" key={editingBlog?.id || "new"} onSubmit={async (e) => {
+            e.preventDefault();
+            const form = new FormData(e.currentTarget);
+            const title = String(form.get("title") || "");
+            const slug = String(form.get("slug") || title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""));
+            const ok = await mutate(editingBlog ? `/admin/blog/${editingBlog.id}` : "/admin/blog", editingBlog ? "PATCH" : "POST", { title, slug, summary: form.get("summary"), body: form.get("body"), coverUrl: form.get("coverUrl"), published: form.get("published") === "on" });
+            if (ok) { e.currentTarget.reset(); setEditingBlog(null); }
+          }}>
+            <label>Title<input name="title" required minLength={3} defaultValue={editingBlog?.title} /></label>
+            <label>URL slug (optional)<input name="slug" pattern="[a-z0-9-]+" defaultValue={editingBlog?.slug} /></label>
+            <label>Summary<textarea name="summary" required minLength={20} maxLength={400} defaultValue={editingBlog?.summary} /></label>
+            <label>Article text<textarea name="body" required minLength={80} rows={12} defaultValue={editingBlog?.body} /></label>
+            <label>Cloudinary cover URL (optional)<input name="coverUrl" type="url" defaultValue={editingBlog?.coverUrl} /></label>
+            <label className="check-label"><input name="published" type="checkbox" defaultChecked={!!editingBlog?.published} /> Publish now</label>
+            <button className="button" disabled={busy}>{editingBlog ? "Update article" : "Save article"}</button>
+            {editingBlog && <button type="button" onClick={() => setEditingBlog(null)}>Cancel editing</button>}
+          </form>
+          {blog.data?.map((p) => <article key={p.id} className="editorial-admin-item"><h3>{p.title}</h3><p>/{p.slug} · {p.published ? "Published" : "Draft"}</p><button type="button" onClick={() => setEditingBlog(p)}>Edit</button> <button disabled={busy} onClick={() => void mutate(`/admin/blog/${p.id}`, "PATCH", { ...p, published: !p.published })}>{p.published ? "Unpublish" : "Publish"}</button></article>)}
+        </section>
+      )}
+      {tab === "Stories" && (
+        <section className="editorial-admin">
+          <h2>Our Stories videos</h2>
+          <p>Add public Reels from @almost.formal. Videos play from Instagram; no copied footage or fake previews.</p>
+          <form className="form-stack" onSubmit={async (e) => {
+            e.preventDefault(); const form = new FormData(e.currentTarget);
+            const ok = await mutate("/admin/stories", "POST", { url: form.get("url"), caption: form.get("caption"), position: Number(form.get("position") || 0), published: true });
+            if (ok) e.currentTarget.reset();
+          }}>
+            <label>Instagram Reel link<input name="url" type="url" placeholder="https://www.instagram.com/reel/.../" required /></label>
+            <label>Caption<input name="caption" maxLength={300} /></label>
+            <label>Order<input name="position" type="number" min={0} defaultValue={0} /></label>
+            <button className="button" disabled={busy}>Add story</button>
+          </form>
+          {stories.data?.map((v) => <article key={v.id} className="editorial-admin-item"><p>{v.caption || v.url} · {v.published ? "Visible" : "Hidden"}</p><button disabled={busy} onClick={() => void mutate(`/admin/stories/${v.id}`, "PATCH", { ...v, published: !v.published })}>{v.published ? "Hide" : "Show"}</button></article>)}
+        </section>
       )}
       {tab === "Settings" && settings.data && (
         <form

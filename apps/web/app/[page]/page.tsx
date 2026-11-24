@@ -32,7 +32,7 @@ export async function generateMetadata({
     title,
     description: page === "care-guide" ? "Learn how to untie, store and clean a necktie, including delicate pieces with unverified fabric." : page === "faq" ? "Answers about Almost Formal ties, condition, care, payment and order tracking." : undefined,
     alternates: { canonical: `/${page}` },
-    robots: { index: !["order-tracking", "privacy-policy", "terms-and-conditions", "shipping-policy", "returns-policy"].includes(page), follow: true },
+    robots: { index: !["order-tracking", "privacy-policy", "terms-and-conditions"].includes(page), follow: true },
   } satisfies Metadata;
 }
 export default async function ContentRoute({

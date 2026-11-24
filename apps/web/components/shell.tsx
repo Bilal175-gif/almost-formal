@@ -20,6 +20,8 @@ import { NavigationLoading } from "./navigation-loading";
 const links = [
   ["Shop", "/shop"],
   ["Our story", "/our-story"],
+  ["Our Stories", "/stories"],
+  ["Journal", "/blog"],
   ["Contact", "/contact"],
 ];
 export function Brand() {
@@ -99,6 +101,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <h3>The good stuff</h3>
             <Link href="/shop">Shop the drop</Link>
             <Link href="/our-story">Our story</Link>
+            <Link href="/stories">Our Stories</Link>
+            <Link href="/blog">Journal</Link>
             <Link href="/care-guide">Care guide</Link>
           </div>
           <div>
