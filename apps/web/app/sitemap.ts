@@ -5,7 +5,7 @@ import { serverApi } from "@/lib/server-api";
 const host = "https://almostformal.shop";
 export const dynamic = "force-dynamic";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticPaths = ["", "/shop", "/our-story", "/stories", "/blog", "/faq", "/care-guide", "/contact", "/shipping-policy", "/returns-policy"];
+  const staticPaths = ["", "/shop", "/our-story", "/blog", "/faq", "/care-guide", "/contact", "/shipping-policy", "/returns-policy"];
   let posts: { slug: string; updatedAt: string }[] = [];
   try { const response = await serverApi("/blog"); if (response.ok) posts = await response.json(); } catch {}
   const first = await catalog(1, 100);

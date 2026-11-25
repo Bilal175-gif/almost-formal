@@ -118,7 +118,7 @@ export function Admin() {
     enabled: auth && tab === "Messages",
   });
   const blog = useQuery({ queryKey: ["admin-blog"], queryFn: () => api<BlogPost[]>("/admin/blog"), enabled: auth && tab === "Blog" });
-  const stories = useQuery({ queryKey: ["admin-stories"], queryFn: () => api<StoryVideo[]>("/admin/stories"), enabled: auth && tab === "Stories" });
+  const stories = useQuery({ queryKey: ["admin-stories"], queryFn: () => api<StoryVideo[]>("/admin/stories"), enabled: auth && tab === "PR + Reviews" });
   const settings = useQuery({
     queryKey: ["settings"],
     queryFn: () => api<Settings>("/settings"),
@@ -172,6 +172,10 @@ export function Admin() {
     }
     await cache.invalidateQueries();
     setBusy(false);
+  }
+  function openProductEditor(p: Product) {
+    setEditId(p.id);
+    setEditor({ ...emptyProduct, ...p, imageUrls: p.images.map((image) => image.url) } as Editable);
   }
   if (session.isPending)
     return (
@@ -263,7 +267,7 @@ export function Admin() {
           "Customers",
           "Messages",
           "Blog",
-          "Stories",
+          "PR + Reviews",
           "Settings",
         ].map((t) => (
           <button
@@ -337,6 +341,7 @@ export function Admin() {
               Add product
             </button>
           </div>
+          <p className="admin-product-help">Choose a product below and press <strong>Edit product</strong> to change its details, price, stock or photos.</p>
           <label className="subtle">
             <input
               type="checkbox"
@@ -349,7 +354,7 @@ export function Admin() {
             <p>Loading products…</p>
           ) : (
             <div className="table-wrap">
-              <table>
+              <table className="admin-products-table">
                 <thead>
                   <tr>
                     <th>Photo</th>
@@ -364,10 +369,10 @@ export function Admin() {
                   {products.data?.filter((p) => showArchived || !p.archived).map((p) => (
                     <tr key={p.id}>
                       <td>
-                        <img src={p.images[0]?.url} alt={p.title} />
+                        <button type="button" className="admin-product-photo" onClick={() => openProductEditor(p)} aria-label={`Edit ${p.title}`}><img src={p.images[0]?.url} alt="" /></button>
                       </td>
                       <td>
-                        <strong>{p.title}</strong>
+                        <button type="button" className="admin-product-title" onClick={() => openProductEditor(p)}>{p.title}</button>
                         <br />
                         {p.sku}
                       </td>
@@ -383,17 +388,10 @@ export function Admin() {
                       </td>
                       <td>
                         <button
-                          className="text-link"
-                          onClick={() => {
-                            setEditId(p.id);
-                            setEditor({
-                              ...emptyProduct,
-                              ...p,
-                              imageUrls: p.images.map((i) => i.url),
-                            } as Editable);
-                          }}
+                          className="button admin-edit-product"
+                          onClick={() => openProductEditor(p)}
                         >
-                          Edit
+                          Edit product
                         </button>{" "}
                         ·{" "}
                         <button
@@ -620,9 +618,9 @@ export function Admin() {
           {blog.data?.map((p) => <article key={p.id} className="editorial-admin-item"><h3>{p.title}</h3><p>/{p.slug} · {p.published ? "Published" : "Draft"}</p><button type="button" onClick={() => setEditingBlog(p)}>Edit</button> <button disabled={busy} onClick={() => void mutate(`/admin/blog/${p.id}`, "PATCH", { ...p, published: !p.published })}>{p.published ? "Unpublish" : "Publish"}</button></article>)}
         </section>
       )}
-      {tab === "Stories" && (
+      {tab === "PR + Reviews" && (
         <section className="editorial-admin">
-          <h2>Our Stories videos</h2>
+          <h2>PR + Reviews videos</h2>
           <p>Add public Reels from @almost.formal. Videos play from Instagram; no copied footage or fake previews.</p>
           <form className="form-stack" onSubmit={async (e) => {
             e.preventDefault(); const form = new FormData(e.currentTarget);

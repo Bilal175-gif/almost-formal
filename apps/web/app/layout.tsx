@@ -11,12 +11,12 @@ export const metadata: Metadata = {
   description:
     "Shop curated, one-of-one patterned neckties in Pakistan. Explore the current collection and find a tie with character.",
   alternates: { canonical: "/" },
-  openGraph: { type: "website", siteName: "Almost Formal", title: "Almost Formal | Curated Neckties in Pakistan", description: "One-of-one patterned neckties, chosen with care in Pakistan.", url: "https://almostformal.shop" },
+  openGraph: { type: "website", siteName: "Almost Formal", title: "Almost Formal | Curated Neckties in Pakistan", description: "One-of-one patterned neckties, chosen with care in Pakistan.", url: "https://almostformal.shop", images: [{ url: "/images/story-cup.webp", alt: "Almost Formal packaging" }] },
   robots: { index: true, follow: true },
   other: { "geo.region": "PK", "geo.placename": "Lahore" },
   icons: {
-    icon: [{ url: "/images/almost-formal-green-logo.webp", type: "image/webp", sizes: "256x256" }],
-    apple: [{ url: "/images/almost-formal-green-logo.webp", sizes: "256x256" }],
+    icon: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
   },
 };
 export default function RootLayout({

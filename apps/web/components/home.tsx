@@ -9,6 +9,7 @@ import {
 import { Star, Smile, ArrowDoodle } from "./doodles";
 import { Featured, MobileDiscovery } from "./products";
 import { SocialFollow } from "./social-follow";
+import { PrReviews } from "./pr-reviews";
 import type { Product } from "../../../packages/shared";
 export function Hero() {
   return (
@@ -200,6 +201,7 @@ export default function HomePage({ featured }: { featured?: { products: Product[
         </div>
         <SocialGallery />
       </div>
+      <PrReviews />
     </>
   );
 }
