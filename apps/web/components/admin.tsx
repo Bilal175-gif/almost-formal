@@ -34,7 +34,6 @@ type Customer = {
   orders: { id: string; number: string; total: number; status: string }[];
 };
 type BlogPost = { id: string; title: string; slug: string; summary: string; body: string; coverUrl: string; published: number };
-type StoryVideo = { id: string; url: string; caption: string; position: number; published: number };
 const emptyProduct = {
   title: "",
   slug: "",
@@ -118,7 +117,6 @@ export function Admin() {
     enabled: auth && tab === "Messages",
   });
   const blog = useQuery({ queryKey: ["admin-blog"], queryFn: () => api<BlogPost[]>("/admin/blog"), enabled: auth && tab === "Blog" });
-  const stories = useQuery({ queryKey: ["admin-stories"], queryFn: () => api<StoryVideo[]>("/admin/stories"), enabled: auth && tab === "PR + Reviews" });
   const settings = useQuery({
     queryKey: ["settings"],
     queryFn: () => api<Settings>("/settings"),
@@ -174,6 +172,7 @@ export function Admin() {
     setBusy(false);
   }
   function openProductEditor(p: Product) {
+    setError("");
     setEditId(p.id);
     setEditor({ ...emptyProduct, ...p, imageUrls: p.images.map((image) => image.url) } as Editable);
   }
@@ -227,14 +226,7 @@ export function Admin() {
         </div>
       </section>
     );
-  const queryError = [
-    dashboard.error,
-    products.error,
-    orders.error,
-    inventory.error,
-    customers.error,
-    messages.error,
-  ].find(Boolean);
+  const queryError = ({ Overview: dashboard.error, Products: products.error, Orders: orders.error, Inventory: inventory.error, Customers: customers.error, Messages: messages.error, Blog: blog.error, Settings: settings.error } as Record<string, Error | null | undefined>)[tab];
   return (
     <section className="admin-page paper">
       <div className="admin-header">
@@ -267,7 +259,6 @@ export function Admin() {
           "Customers",
           "Messages",
           "Blog",
-          "PR + Reviews",
           "Settings",
         ].map((t) => (
           <button
@@ -317,10 +308,7 @@ export function Admin() {
                   </button>
                 </div>
                 <OrderTable orders={dashboard.data.recent} />
-                <p className="subtle">
-                  One-of-one inventory: every available demo piece starts with
-                  one unit. Check Inventory for stock changes.
-                </p>
+                <div className="admin-quick-actions"><button className="button" onClick={() => setTab("Products")}>Manage products</button><button className="button outline" onClick={() => setTab("Orders")}>Review orders</button></div>
               </>
             )
           )}
@@ -369,7 +357,7 @@ export function Admin() {
                   {products.data?.filter((p) => showArchived || !p.archived).map((p) => (
                     <tr key={p.id}>
                       <td>
-                        <button type="button" className="admin-product-photo" onClick={() => openProductEditor(p)} aria-label={`Edit ${p.title}`}><img src={p.images[0]?.url} alt="" /></button>
+                        <button type="button" className="admin-product-photo" onClick={() => openProductEditor(p)} aria-label={`Edit ${p.title}`}><img src={p.images[0]?.url || "/images/photo-unavailable.svg"} alt="" onError={(event) => { event.currentTarget.src = "/images/photo-unavailable.svg"; }} /></button>
                       </td>
                       <td>
                         <button type="button" className="admin-product-title" onClick={() => openProductEditor(p)}>{p.title}</button>
@@ -618,23 +606,7 @@ export function Admin() {
           {blog.data?.map((p) => <article key={p.id} className="editorial-admin-item"><h3>{p.title}</h3><p>/{p.slug} · {p.published ? "Published" : "Draft"}</p><button type="button" onClick={() => setEditingBlog(p)}>Edit</button> <button disabled={busy} onClick={() => void mutate(`/admin/blog/${p.id}`, "PATCH", { ...p, published: !p.published })}>{p.published ? "Unpublish" : "Publish"}</button></article>)}
         </section>
       )}
-      {tab === "PR + Reviews" && (
-        <section className="editorial-admin">
-          <h2>PR + Reviews videos</h2>
-          <p>Add public Reels from @almost.formal. Videos play from Instagram; no copied footage or fake previews.</p>
-          <form className="form-stack" onSubmit={async (e) => {
-            e.preventDefault(); const form = new FormData(e.currentTarget);
-            const ok = await mutate("/admin/stories", "POST", { url: form.get("url"), caption: form.get("caption"), position: Number(form.get("position") || 0), published: true });
-            if (ok) e.currentTarget.reset();
-          }}>
-            <label>Instagram Reel link<input name="url" type="url" placeholder="https://www.instagram.com/reel/.../" required /></label>
-            <label>Caption<input name="caption" maxLength={300} /></label>
-            <label>Order<input name="position" type="number" min={0} defaultValue={0} /></label>
-            <button className="button" disabled={busy}>Add story</button>
-          </form>
-          {stories.data?.map((v) => <article key={v.id} className="editorial-admin-item"><p>{v.caption || v.url} · {v.published ? "Visible" : "Hidden"}</p><button disabled={busy} onClick={() => void mutate(`/admin/stories/${v.id}`, "PATCH", { ...v, published: !v.published })}>{v.published ? "Hide" : "Show"}</button></article>)}
-        </section>
-      )}
+      {tab === "Settings" && settings.isPending && <p>Loading store settings…</p>}
       {tab === "Settings" && settings.data && (
         <form
           className="form-stack admin-settings"
@@ -710,6 +682,7 @@ export function Admin() {
       >
         {editor && (
           <ProductEditor
+            key={editId || "new"}
             initial={editor}
             saveError={error}
             categories={categories.data || []}
@@ -1104,6 +1077,7 @@ function ProductEditor({
                   setError((e as Error).message);
                 } finally {
                   setUploading(false);
+                  e.target.value = "";
                 }
               }}
             />

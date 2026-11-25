@@ -6,7 +6,7 @@ import { createOrder, getOrder } from "./orders";
 import { uploadImage } from "./media";
 import { sendContactNotification, sendOrderCreated, sendOrderStatus } from "./email";
 import { adminOrders, adminProducts, createCategory, createProduct, customers, dashboard, inventory, messages, removeProduct, updateOrderStatus, updateProduct, updateSettings, type ExecutionContextLike } from "./admin";
-import { post, posts, reels, savePost, saveReel } from "./editorial";
+import { post, posts, savePost } from "./editorial";
 
 async function limit(env: Env, request: Request, key: string, max: number, windowMs: number) {
   const ip = request.headers.get("cf-connecting-ip") || "unknown";
@@ -30,7 +30,6 @@ async function route(request: Request, env: Env, ctx: ExecutionContextLike) {
   if (path === "/api/categories" && method === "GET") return categories(db);
   if (path === "/api/settings" && method === "GET") return settings(db);
   if (path === "/api/blog" && method === "GET") return posts(db);
-  if (path === "/api/stories" && method === "GET") return reels(db);
   const publicPost = /^\/api\/blog\/([a-z0-9-]+)$/.exec(path);
   if (publicPost && method === "GET") return post(db, publicPost[1]);
   const productMatch = /^\/api\/products\/([^/]+)$/.exec(path);
@@ -76,10 +75,6 @@ async function route(request: Request, env: Env, ctx: ExecutionContextLike) {
     if (path === "/api/admin/blog" && method === "POST") return savePost(db, await parseJson(request));
     const adminPost = /^\/api\/admin\/blog\/([^/]+)$/.exec(path);
     if (adminPost && method === "PATCH") return savePost(db, await parseJson(request), adminPost[1]);
-    if (path === "/api/admin/stories" && method === "GET") return reels(db, true);
-    if (path === "/api/admin/stories" && method === "POST") return saveReel(db, await parseJson(request));
-    const adminReel = /^\/api\/admin\/stories\/([^/]+)$/.exec(path);
-    if (adminReel && method === "PATCH") return saveReel(db, await parseJson(request), adminReel[1]);
     if (path === "/api/admin/dashboard" && method === "GET") return dashboard(db);
     if (path === "/api/admin/products" && method === "GET") return adminProducts(db);
     if (path === "/api/admin/products" && method === "POST") return createProduct(db, env, admin.adminId, await parseJson(request));

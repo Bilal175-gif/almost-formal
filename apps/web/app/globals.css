@@ -3804,11 +3804,7 @@ td select {
     display: none;
   }
 }
-.stories-page { padding-bottom: 64px; }
-.stories-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; padding: 20px clamp(16px, 4vw, 60px); }
-.stories-grid article, .journal-grid article, .editorial-admin-item { background: #fffaf0; border: 1px solid #dfd1b8; border-radius: 16px; overflow: hidden; padding: 14px; }
-.stories-grid iframe { display: block; width: 100%; height: 480px; border: 0; border-radius: 10px; background: #e9deca; }
-.stories-grid p { min-height: 1.5em; }
+.journal-grid article, .editorial-admin-item { background: #fffaf0; border: 1px solid #dfd1b8; border-radius: 16px; overflow: hidden; padding: 14px; }
 .stories-empty { padding: 24px clamp(16px, 4vw, 60px) 60px; }
 .journal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 22px; padding: 20px clamp(16px, 4vw, 60px) 60px; }
 .journal-grid img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 9px; }
@@ -3818,16 +3814,8 @@ td select {
 .article-body { white-space: pre-line; }
 .editorial-admin { max-width: 780px; }
 .editorial-admin-item { margin: 16px 0; }
-.pr-reviews { padding: 64px clamp(18px, 4vw, 70px) 74px; }
-.pr-reviews-heading { text-align: center; max-width: 700px; margin: 0 auto 30px; }
-.pr-reviews-heading h2 { font-family: var(--serif); font-size: clamp(38px, 5vw, 68px); margin: 8px 0; }
-.pr-reviews-heading p { font-size: 17px; }
-.pr-reviews-track { display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 20px; }
-.pr-review-card { flex: 0 0 clamp(240px, 25vw, 325px); scroll-snap-align: start; border-radius: 16px; overflow: hidden; background: #eadfc9; }
-.pr-review-card iframe { display: block; width: 100%; height: 470px; border: 0; }
-.pr-review-card a { display: flex; align-items: center; gap: 8px; padding: 12px 16px; font-weight: 600; }
-@media (max-width: 600px) { .pr-reviews { padding: 45px 14px 55px; } .pr-review-card { flex-basis: 78vw; } }
 .admin-product-help { margin: 0 0 18px; font-size: 15px; }
+.admin-quick-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
 .admin-product-photo { padding: 0; border: 0; background: none; cursor: pointer; }
 .admin-product-title { padding: 0; text-align: left; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 .admin-edit-product { display: inline-flex; align-items: center; justify-content: center; padding: 10px 14px; font-size: 13px; white-space: nowrap; }
