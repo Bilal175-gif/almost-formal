@@ -44,14 +44,15 @@ export async function createOrder(
   const settings = await first<{ shipping: number; codEnabled: number }>(db, 'SELECT "shipping", "codEnabled" FROM "StoreSettings" WHERE "id" = ?', "store");
   if (!settings || !settings.codEnabled) throw new ApiError(400, "Cash on delivery is currently unavailable.");
   const placeholders = data.items.map(() => "?").join(",");
-  const products = await all<{ id: string; title: string; sku: string; price: number; stock: number; archived: number }>(db, `SELECT "id", "title", "sku", "price", "stock", "archived" FROM "Product" WHERE "id" IN (${placeholders})`, ...data.items.map((item: Item) => item.productId));
+  const products = await all<{ id: string; title: string; sku: string; price: number; discountPercent: number; stock: number; archived: number }>(db, `SELECT "id", "title", "sku", "price", "discountPercent", "stock", "archived" FROM "Product" WHERE "id" IN (${placeholders})`, ...data.items.map((item: Item) => item.productId));
   const images = await all<{ productId: string; url: string }>(db, `SELECT "productId", "url" FROM "ProductImage" WHERE "productId" IN (${placeholders}) ORDER BY "position"`, ...data.items.map((item: Item) => item.productId));
   let subtotal = 0;
   for (const item of data.items) {
     const product = products.find((entry) => entry.id === item.productId);
     if (!product || product.archived || product.stock < item.quantity)
       throw new ApiError(409, "A product in your bag is no longer available.");
-    subtotal += product.price * item.quantity;
+    const finalPrice = Math.round(product.price * (100 - product.discountPercent) / 100);
+    subtotal += finalPrice * item.quantity;
   }
   const total = subtotal + settings.shipping;
   const orderId = id();
@@ -65,7 +66,7 @@ export async function createOrder(
   ];
   for (const item of data.items) {
     const product = products.find((entry) => entry.id === item.productId)!;
-    stmts.push(statement(db, 'INSERT INTO "OrderItem" ("id", "orderId", "productId", "title", "sku", "price", "image", "quantity") VALUES (?, ?, ?, ?, ?, ?, ?, ?)', id(), orderId, product.id, product.title, product.sku, product.price, images.find((image) => image.productId === product.id)?.url || "", item.quantity));
+    stmts.push(statement(db, 'INSERT INTO "OrderItem" ("id", "orderId", "productId", "title", "sku", "price", "image", "quantity") VALUES (?, ?, ?, ?, ?, ?, ?, ?)', id(), orderId, product.id, product.title, product.sku, Math.round(product.price * (100 - product.discountPercent) / 100), images.find((image) => image.productId === product.id)?.url || "", item.quantity));
     stmts.push(statement(db, 'INSERT INTO "InventoryMovement" ("id", "productId", "delta", "reason", "orderId", "createdAt") VALUES (?, ?, ?, ?, ?, ?)', id(), product.id, -item.quantity, "Order placed", orderId, now));
   }
   stmts.push(statement(db, 'INSERT INTO "Payment" ("id", "orderId", "method", "status", "amount") VALUES (?, ?, ?, ?, ?)', id(), orderId, "cod", "pending", total));

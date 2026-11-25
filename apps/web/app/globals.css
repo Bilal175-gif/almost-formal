@@ -3826,7 +3826,13 @@ td select {
   .admin-products-table thead { display: none; }
   .admin-products-table tr { display: grid; grid-template-columns: 70px 1fr; gap: 6px 14px; padding: 15px; margin: 0 0 14px; border: 1px solid var(--line); border-radius: 12px; }
   .admin-products-table td { display: block; border: 0; padding: 0; }
-  .admin-products-table td:first-child { grid-row: span 4; }
+  .admin-products-table td:nth-child(2) { grid-row: span 4; }
   .admin-products-table td:last-child { grid-column: 1 / -1; padding-top: 8px; }
   .admin-products-table td img { width: 70px; height: 92px; object-fit: cover; }
 }
+
+.admin-bulk-actions { display: flex; align-items: end; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+.admin-bulk-actions input { width: 90px; margin-left: 8px; }
+.admin-products-table del, .product-price del, .product-info del { opacity: .6; margin-right: 5px; }
+
+.detail-sold-label { display: inline-block; margin: 8px 0; padding: 4px 12px; background: #f5ecd9; font-weight: 700; }

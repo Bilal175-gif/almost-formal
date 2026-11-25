@@ -5,7 +5,7 @@ import { ArrowRight, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { api, type Settings } from "@/lib/api";
 import { productImageUrl, useUnavailableImage } from "@/lib/cloudinary-image";
-import { money } from "../../../packages/shared";
+import { money, salePrice } from "../../../packages/shared";
 export function CartContents({ drawer = false }: { drawer?: boolean }) {
   const s = useStore();
   const { data: settings } = useQuery({
@@ -13,7 +13,7 @@ export function CartContents({ drawer = false }: { drawer?: boolean }) {
     queryFn: () => api<Settings>("/settings"),
   });
   const subtotal = s.items.reduce(
-    (n, i) => n + i.product.price * i.quantity,
+    (n, i) => n + salePrice(i.product) * i.quantity,
     0,
   );
   return (
@@ -51,7 +51,7 @@ export function CartContents({ drawer = false }: { drawer?: boolean }) {
                   >
                     {p.title}
                   </Link>
-                  <strong>{money(p.price)}</strong>
+                  <strong>{money(salePrice(p))}</strong>
                   <div className="quantity">
                     <button
                       aria-label={`Decrease ${p.title} quantity`}

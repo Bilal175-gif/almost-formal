@@ -39,6 +39,7 @@ model Product {
   title String
   description String
   price Int
+  discountPercent Int @default(0)
   stock Int @default(1)
   pattern String
   color String

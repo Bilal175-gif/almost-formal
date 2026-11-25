@@ -6,7 +6,7 @@ import { orderDetails, type OrderDetails, type OrderRow } from "./orders";
 
 const productSchema = z.object({
   title: z.string().trim().min(2).max(150), slug: z.string().regex(/^[a-z0-9-]+$/), sku: z.string().min(2).max(60),
-  description: z.string().min(10).max(3000), price: z.number().int().positive().max(100000000), stock: z.number().int().min(0).max(10000),
+  description: z.string().min(10).max(3000), price: z.number().int().positive().max(100000000), discountPercent: z.number().int().min(0).max(99).default(0), stock: z.number().int().min(0).max(10000),
   category: z.string().min(1), pattern: z.string().min(1), color: z.string().min(1), condition: z.enum(["Excellent", "Good", "Worn (character)"]),
   conditionNote: z.string().min(1).max(1000), flaws: z.string().max(1000), length: z.number().positive(), width: z.number().positive(),
   material: z.string().nullable(), era: z.string().nullable(), featured: z.boolean(), archived: z.boolean().optional(),
@@ -44,7 +44,7 @@ export async function createProduct(db: D1Database, env: Env, adminId: string, i
   const category = await categoryId(db, data.category);
   const productId = id();
   const now = new Date().toISOString();
-  const fields = ["id", "slug", "sku", "title", "description", "price", "stock", "pattern", "color", "condition", "conditionNote", "flaws", "length", "width", "material", "era", "category", "featured", "archived", "createdAt", "updatedAt"];
+  const fields = ["id", "slug", "sku", "title", "description", "price", "discountPercent", "stock", "pattern", "color", "condition", "conditionNote", "flaws", "length", "width", "material", "era", "category", "featured", "archived", "createdAt", "updatedAt"];
   const values = fields.map((field) => field === "id" ? productId : field === "createdAt" || field === "updatedAt" ? now : field === "featured" || field === "archived" ? Number(Boolean(data[field])) : data[field as keyof ProductInput]);
   const stmts = [
     statement(db, `INSERT INTO "Product" (${fields.map((field) => `"${field}"`).join(",")}) VALUES (${fields.map(() => "?").join(",")})`, ...values),

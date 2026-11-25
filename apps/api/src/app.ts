@@ -426,7 +426,7 @@ const productSchema = z.object({
   slug: z.string().regex(/^[a-z0-9-]+$/),
   sku: z.string().min(2).max(60),
   description: z.string().min(10).max(3000),
-  price: z.number().int().positive().max(100000000),
+  price: z.number().int().positive().max(100000000), discountPercent: z.number().int().min(0).max(99).default(0),
   stock: z.number().int().min(0).max(10000),
   category: z.string().min(1),
   pattern: z.string().min(1),

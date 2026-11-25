@@ -31,6 +31,7 @@ export type Product = {
   title: string;
   description: string;
   price: number;
+  discountPercent: number;
   stock: number;
   pattern: string;
   color: string;
@@ -48,3 +49,6 @@ export type Product = {
 };
 export const money = (minor: number) =>
   `Rs. ${Math.round(minor / 100).toLocaleString("en-PK")}`;
+
+export const salePrice = (product: Pick<Product, "price" | "discountPercent">) =>
+  Math.round(product.price * (100 - (product.discountPercent || 0)) / 100);

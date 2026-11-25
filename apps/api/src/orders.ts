@@ -73,12 +73,13 @@ export async function createOrder(
             409,
             `${product.title} has already found a new home. Remove it from your bag to continue.`,
           );
-        subtotal += product.price * item.quantity;
+        const finalPrice = Math.round(product.price * (100 - product.discountPercent) / 100);
+        subtotal += finalPrice * item.quantity;
         snapshots.push({
           productId: product.id,
           title: product.title,
           sku: product.sku,
-          price: product.price,
+          price: finalPrice,
           quantity: item.quantity,
           image: product.images[0]?.url || "",
         });

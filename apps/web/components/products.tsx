@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Heart, Plus, ArrowRight, Search, Eye, Minus } from "lucide-react";
 import type { Product } from "../../../packages/shared";
-import { money } from "../../../packages/shared";
+import { money, salePrice } from "../../../packages/shared";
 import { api } from "@/lib/api";
 import { productImageUrl, productImageSrcSet, useUnavailableImage } from "@/lib/cloudinary-image";
 import { useStore } from "@/lib/store";
@@ -56,7 +56,7 @@ export function ProductCard({
           >
             <Heart size={21} fill={wished ? "currentColor" : "none"} />
           </button>
-          {p.stock === 0 && <span className="sold-label">Found a home</span>}
+          {p.stock === 0 && <span className="sold-label">Sold</span>}
           <button
             className="quick-view"
             onClick={() => setQuick(true)}
@@ -68,7 +68,7 @@ export function ProductCard({
         <div className="product-info">
           <Link href={`/product/${p.slug}`}>{p.title}</Link>
           <div>
-            <strong>{money(p.price)}</strong>
+            <strong>{p.discountPercent > 0 && <del>{money(p.price)}</del>} {money(salePrice(p))}</strong>
             <button
               className="add-button"
               aria-label={`Add ${p.title} to bag`}
@@ -98,7 +98,7 @@ export function ProductCard({
             CURATED FIND
           </span>
           <h2>{p.title}</h2>
-          <h3>{money(p.price)}</h3>
+          <h3>{p.discountPercent > 0 && <del>{money(p.price)}</del>} {money(salePrice(p))}</h3>
           <p>{p.description}</p>
           <p>{p.conditionNote}</p>
           <button
@@ -109,7 +109,7 @@ export function ProductCard({
               s.add(p);
             }}
           >
-            {p.stock ? "Add to Bag" : "Found a home"}
+            {p.stock ? "Add to Bag" : "Sold"}
             <Plus size={19} />
           </button>
           <Link

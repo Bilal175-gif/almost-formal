@@ -16,7 +16,7 @@ import {
 import { api } from "@/lib/api";
 import { productImageUrl, productImageSrcSet, useUnavailableImage } from "@/lib/cloudinary-image";
 import { useStore } from "@/lib/store";
-import { type Product, money } from "../../../packages/shared";
+import { type Product, money, salePrice } from "../../../packages/shared";
 import { ErrorBox } from "./ui";
 import { ArrowDoodle } from "./doodles";
 import { ProductCard, ProductSkeletons } from "./products";
@@ -116,7 +116,8 @@ export function ProductDetail({ slug, initial }: { slug: string; initial: Produc
         <div className="product-detail-copy">
           <span className="eyebrow">THE DETAIL THAT MAKES THE LOOK.</span>
           <h1>{p.title}</h1>
-          <p className="product-price">{money(p.price)}</p>
+          {p.stock === 0 && <span className="detail-sold-label">Sold</span>}
+          <p className="product-price">{p.discountPercent > 0 && <><del>{money(p.price)}</del> <span>{p.discountPercent}% off</span> </>}{money(salePrice(p))}</p>
           <div className="tags">
             <span>Curated find</span>
             <span>{p.condition} Condition</span>
@@ -152,7 +153,7 @@ export function ProductDetail({ slug, initial }: { slug: string; initial: Produc
               <span>
                 {p.stock > 0
                   ? "In stock"
-                  : "Sold out — found a new home"}
+                  : "Sold — found a new home"}
               </span>
             </div>
           </div>
@@ -170,7 +171,7 @@ export function ProductDetail({ slug, initial }: { slug: string; initial: Produc
               disabled={p.stock < 1}
               onClick={() => s.add(p)}
             >
-              {p.stock ? "Add to Bag" : "Found a new home"}
+              {p.stock ? "Add to Bag" : "Sold"}
               {p.stock > 0 && <Plus size={20} />}
             </button>
             <button

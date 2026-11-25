@@ -40,6 +40,7 @@ const emptyProduct = {
   sku: "",
   description: "",
   price: 0,
+  discountPercent: 0,
   stock: 1,
   category: "Regular Ties",
   pattern: "Striped",
@@ -63,6 +64,8 @@ export function Admin() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkDiscount, setBulkDiscount] = useState(0);
   const [editor, setEditor] = useState<Editable | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
   const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
@@ -141,6 +144,22 @@ export function Admin() {
     } finally {
       setBusy(false);
     }
+  }
+  async function applyBulkDiscount() {
+    if (!selectedIds.length) return;
+    setBusy(true);
+    setError("");
+    try {
+      for (const id of selectedIds) {
+        await api(`/admin/products/${id}`, { method: "PATCH", headers, body: JSON.stringify({ discountPercent: bulkDiscount }) });
+      }
+      setSelectedIds([]);
+      await cache.invalidateQueries();
+      notify("Discount applied.");
+    } catch (e) {
+      setError((e as Error).message);
+      await cache.invalidateQueries();
+    } finally { setBusy(false); }
   }
   async function removeProduct(product: Product) {
     if (!window.confirm(`Remove ${product.title} from your catalogue?`)) return;
@@ -329,7 +348,7 @@ export function Admin() {
               Add product
             </button>
           </div>
-          <p className="admin-product-help">Choose a product below and press <strong>Edit product</strong> to change its details, price, stock or photos.</p>
+          <p className="admin-product-help">Choose a product below and press <strong>Edit product</strong> to change its details, price, sale, sold status or photos.</p>
           <label className="subtle">
             <input
               type="checkbox"
@@ -338,6 +357,10 @@ export function Admin() {
             />{" "}
             Show archived products
           </label>
+          <div className="admin-bulk-actions">
+            <label>Discount for selected products (%) <input type="number" min={0} max={99} value={bulkDiscount} onChange={(e) => setBulkDiscount(Number(e.target.value))} /></label>{" "}
+            <button className="button outline" disabled={busy || !selectedIds.length || bulkDiscount < 0 || bulkDiscount > 99} onClick={() => void applyBulkDiscount()}>Apply to {selectedIds.length} selected</button>
+          </div>
           {products.isPending ? (
             <p>Loading products…</p>
           ) : (
@@ -345,10 +368,11 @@ export function Admin() {
               <table className="admin-products-table">
                 <thead>
                   <tr>
+                    <th><input type="checkbox" aria-label="Select all visible products" checked={!!products.data?.filter((p) => showArchived || !p.archived).length && products.data.filter((p) => showArchived || !p.archived).every((p) => selectedIds.includes(p.id))} onChange={(e) => setSelectedIds(e.target.checked ? products.data?.filter((p) => showArchived || !p.archived).map((p) => p.id) || [] : [])} /></th>
                     <th>Photo</th>
                     <th>Product</th>
                     <th>Price</th>
-                    <th>Stock</th>
+                    <th>Sold</th>
                     <th>Visibility</th>
                     <th>Actions</th>
                   </tr>
@@ -356,6 +380,7 @@ export function Admin() {
                 <tbody>
                   {products.data?.filter((p) => showArchived || !p.archived).map((p) => (
                     <tr key={p.id}>
+                      <td><input type="checkbox" aria-label={`Select ${p.title}`} checked={selectedIds.includes(p.id)} onChange={(e) => setSelectedIds(e.target.checked ? [...selectedIds, p.id] : selectedIds.filter((id) => id !== p.id))} /></td>
                       <td>
                         <button type="button" className="admin-product-photo" onClick={() => openProductEditor(p)} aria-label={`Edit ${p.title}`}><img src={p.images[0]?.url || "/images/photo-unavailable.svg"} alt="" onError={(event) => { event.currentTarget.src = "/images/photo-unavailable.svg"; }} /></button>
                       </td>
@@ -364,14 +389,14 @@ export function Admin() {
                         <br />
                         {p.sku}
                       </td>
-                      <td>{money(p.price)}</td>
-                      <td>{p.stock}</td>
+                      <td>{p.discountPercent > 0 ? <><del>{money(p.price)}</del> {money(Math.round(p.price * (100 - p.discountPercent) / 100))} ({p.discountPercent}% off)</> : money(p.price)}</td>
+                      <td><input type="checkbox" aria-label={`Mark ${p.title} sold`} checked={p.stock === 0} disabled={busy} onChange={(e) => void mutate(`/admin/products/${p.id}`, "PATCH", { stock: e.target.checked ? 0 : 1 })} /></td>
                       <td>
                         {p.archived
                           ? "Archived"
                           : p.stock
                             ? "Available"
-                            : "Sold out"}
+                            : "Sold"}
                         {p.featured ? " · Featured" : ""}
                       </td>
                       <td>
@@ -860,7 +885,8 @@ function ProductEditor({
             ...emptyProduct,
             ...Object.fromEntries(f),
             price: Math.round(Number(f.get("price")) * 100),
-            stock: Number(f.get("stock")),
+            stock: f.get("sold") === "on" ? 0 : Number(f.get("stock")),
+            discountPercent: Number(f.get("discountPercent")),
             length: Number(f.get("length")),
             width: Number(f.get("width")),
             material: String(f.get("material") || "") || null,
@@ -928,6 +954,7 @@ function ProductEditor({
               defaultValue={initial.price / 100}
             />
           </label>
+          <label>Sale discount (%)<input name="discountPercent" type="number" min={0} max={99} step={1} defaultValue={initial.discountPercent} /></label>
           <label>
             Available quantity
             <input
@@ -940,6 +967,7 @@ function ProductEditor({
             />
           </label>
         </div>
+        <label><input type="checkbox" name="sold" defaultChecked={initial.stock === 0} onChange={(event) => { const stock = event.currentTarget.form?.elements.namedItem("stock") as HTMLInputElement | null; if (stock) stock.value = event.currentTarget.checked ? "0" : stock.value === "0" ? "1" : stock.value; }} /> Mark as sold (prevents checkout)</label>
         <div className="form-row">
           <label>
             Pattern

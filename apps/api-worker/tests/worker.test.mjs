@@ -13,6 +13,7 @@ const passwordHash = await hash(password, { type: 2 });
 const migrations = await Promise.all([
   readFile(new URL("../migrations/0001_init.sql", import.meta.url), "utf8"),
   readFile(new URL("../migrations/0002_worker_hardening.sql", import.meta.url), "utf8"),
+  readFile(new URL("../migrations/0004_product_discount.sql", import.meta.url), "utf8"),
 ]);
 const originalFetch = globalThis.fetch;
 const originalConsoleError = console.error;
@@ -237,6 +238,22 @@ test("checkout preserves idempotency, reserves stock once, and sends notificatio
   assert.equal(emailRequests.length, 2);
   assert.match(emailRequests[0].text, /Private tracking code/);
   assert.equal(emailRequests[1].to[0], "owner@example.test");
+});
+
+test("sale prices are charged and externally sold pieces cannot be ordered", async () => {
+  const session = await login();
+  const headers = { method: "PATCH", cookie: session.cookie, csrfToken: session.csrfToken };
+  const discounted = await request("/api/admin/products/product-1", { ...headers, body: { discountPercent: 20 } });
+  assert.equal(discounted.status, 200);
+  assert.equal((await (await request("/api/products/test-tie")).json()).discountPercent, 20);
+  const ordered = await createOrder();
+  assert.equal(ordered.status, 201);
+  const order = await ordered.json();
+  assert.equal(order.items[0].price, 103200);
+  assert.equal(order.subtotal, 103200);
+  const sold = await request("/api/admin/products/product-1", { ...headers, body: { stock: 0 } });
+  assert.equal(sold.status, 200);
+  assert.equal((await createOrder()).status, 409);
 });
 
 test("catalog, newsletter, customer, inventory, settings, and product admin endpoints", async () => {

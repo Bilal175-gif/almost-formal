@@ -1,4 +1,5 @@
 "use client";
+import { salePrice } from "../../../packages/shared";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -71,7 +72,7 @@ export function Checkout() {
     } catch {}
   }, [reset]);
   const subtotal = s.items.reduce(
-    (n, i) => n + i.product.price * i.quantity,
+    (n, i) => n + salePrice(i.product) * i.quantity,
     0,
   );
   async function placeOrder() {
@@ -418,7 +419,7 @@ export function Checkout() {
               </Link>
               <div>
                 <Link href={`/product/${p.slug}`}>{p.title}</Link>
-                <strong>{money(p.price * quantity)}</strong>
+                <strong>{money(salePrice(p) * quantity)}</strong>
                 <small className="tiny">Qty: {quantity}</small>
               </div>
             </div>
